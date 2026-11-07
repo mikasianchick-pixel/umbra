@@ -4,7 +4,7 @@
 #   powershell -ExecutionPolicy Bypass -File scripts/screenshots.ps1
 # Uses the installed Chrome, no extra packages.
 
-param([string]$base = "http://localhost:4400")
+param([string]$base = "http://localhost:4400/umbra")
 $chrome = "$env:ProgramFiles\Google\Chrome\Application\chrome.exe"
 $dir = Join-Path $PSScriptRoot "..\docs\screenshots"
 New-Item -ItemType Directory -Force $dir | Out-Null
@@ -21,7 +21,7 @@ $shots = @(
 )
 
 $wrapper = Join-Path $PSScriptRoot "..\dist\_phone.html"
-'<!doctype html><body style="margin:0;background:#090910"><iframe src="/?noloader" width="390" height="844" style="border:0;display:block"></iframe></body>' |
+'<!doctype html><body style="margin:0;background:#090910"><iframe src="/umbra/?noloader" width="390" height="844" style="border:0;display:block"></iframe></body>' |
   Set-Content -Path $wrapper -Encoding ascii
 
 foreach ($s in $shots) {

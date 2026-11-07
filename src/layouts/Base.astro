@@ -6,6 +6,7 @@ import Toaster from "@/components/Toaster.astro";
 import CommandPalette from "@/islands/CommandPalette";
 import { games } from "@/data/games";
 import { mainNav } from "@/data/nav";
+import { link } from "@/data/link";
 import "@/styles/tokens.css";
 import "@/styles/reset.css";
 import "@/styles/base.css";
@@ -28,7 +29,7 @@ const {
   title,
   description = "Umbra — a fictional neon game platform. A portfolio project showing design, 3D, animation and front-end skills.",
   intro = false,
-  image = "/og.png",
+  image = link("/og.png"),
   noindex = false,
 } = Astro.props;
 const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
@@ -76,9 +77,9 @@ const ogImage = new URL(image, Astro.site);
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="icon" type="image/svg+xml" href={link("/favicon.svg")} />
+    <link rel="apple-touch-icon" href={link("/apple-touch-icon.png")} />
+    <link rel="sitemap" href={link("/sitemap.xml")} />
 
     <!-- превью ссылки в соцсетях и мессенджерах -->
     <meta property="og:type" content="website" />
@@ -114,7 +115,7 @@ const ogImage = new URL(image, Astro.site);
         genre: g.tags[0] ?? "",
         price: g.price === 0 ? "Free" : `$${g.price.toFixed(2)}`,
       }))}
-      pages={[{ label: "Home", href: "/" }, ...mainNav]}
+      pages={[{ label: "Home", href: link("/") }, ...mainNav]}
     />
     <script>
       import "@/scripts/smooth-scroll";

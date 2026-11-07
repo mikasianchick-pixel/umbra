@@ -2,6 +2,7 @@
 // Карточка игры. Стили — в src/styles/ui.css: ту же разметку рисует React-каталог (islands/GameCardView.tsx).
 import type { Game } from "@/data/games";
 import { formatPrice, badgeLabel } from "@/data/games";
+import { link } from "@/data/link";
 import GameCover from "./GameCover.astro";
 import Badge from "./Badge.astro";
 import Tag from "./Tag.astro";
@@ -46,7 +47,7 @@ const Heading = `h${headingLevel}` as const;
   <div class="game-card__body">
     <p class="game-card__studio">{game.studio}</p>
     <Heading class="game-card__name">
-      <a href={`/games/${game.slug}`}>{game.name}</a>
+      <a href={link(`/games/${game.slug}`)}>{game.name}</a>
     </Heading>
     <ul class="game-card__tags" role="list" aria-label="Genres">
       {game.tags.map((t) => (

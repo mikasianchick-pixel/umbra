@@ -3,12 +3,14 @@ import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
 
-// переменные окружения (и из .env, и из настроек хостинга) с префиксом SITE_
-const { SITE_URL } = loadEnv("", ".", "SITE_");
+// адрес и папка сайта можно переопределить переменными SITE_URL / SITE_BASE (например, для своего домена)
+const { SITE_URL, SITE_BASE } = loadEnv("", ".", "SITE_");
 
 export default defineConfig({
-  // полный адрес сайта для og:image, canonical и sitemap; на хостинге задаётся переменной SITE_URL (этап 10)
-  site: SITE_URL ?? "http://localhost:4321",
+  // сайт опубликован на GitHub Pages: https://mikasianchick-pixel.github.io/umbra/
+  // site — для og:image, canonical и sitemap; base — папка, все ссылки строятся через src/data/link.ts
+  site: SITE_URL ?? "https://mikasianchick-pixel.github.io",
+  base: SITE_BASE ?? "/umbra",
   integrations: [react()],
   // переходы между страницами — родные View Transitions браузера (@view-transition в base.css), без JS-роутера;
   // предзагрузка делает их мгновенными

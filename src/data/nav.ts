@@ -1,3 +1,5 @@
+import { link } from "./link";
+
 export interface NavLink {
   label: string;
   href: string;
@@ -5,26 +7,26 @@ export interface NavLink {
 
 // Главное меню. Ведёт только на существующие страницы и секции — без «мёртвых» ссылок.
 export const mainNav: NavLink[] = [
-  { label: "Store", href: "/games" },
-  { label: "How it works", href: "/#how" },
-  { label: "Umbra Pass", href: "/#pass" },
-  { label: "Design system", href: "/system" },
+  { label: "Store", href: link("/games") },
+  { label: "How it works", href: link("/#how") },
+  { label: "Umbra Pass", href: link("/#pass") },
+  { label: "Design system", href: link("/system") },
 ];
 
 export const footerNav: { title: string; links: NavLink[] }[] = [
   {
     title: "Platform",
     links: [
-      { label: "Store", href: "/games" },
-      { label: "Umbra Pass", href: "/#pass" },
-      { label: "FAQ", href: "/#faq" },
+      { label: "Store", href: link("/games") },
+      { label: "Umbra Pass", href: link("/#pass") },
+      { label: "FAQ", href: link("/#faq") },
     ],
   },
   {
     title: "About",
     links: [
-      { label: "Design system", href: "/system" },
-      { label: "How it works", href: "/#how" },
+      { label: "Design system", href: link("/system") },
+      { label: "How it works", href: link("/#how") },
     ],
   },
 ];

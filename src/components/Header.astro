@@ -4,6 +4,7 @@ import Icon from "./Icon.astro";
 import IconButton from "./IconButton.astro";
 import Tooltip from "./Tooltip.astro";
 import { mainNav } from "@/data/nav";
+import { link } from "@/data/link";
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const isActive = (href: string) =>
@@ -12,7 +13,7 @@ const isActive = (href: string) =>
 
 <header class="header">
   <div class="header__bar container">
-    <a class="header__logo" href="/" aria-label="Umbra — home">
+    <a class="header__logo" href={link("/")} aria-label="Umbra — home">
       UMBRA
     </a>
 
@@ -30,7 +31,7 @@ const isActive = (href: string) =>
 
     <div class="header__actions">
       <!-- без JS — ссылка в каталог, с JS — открывает командную палитру -->
-      <a class="header__search" href="/games" data-palette-open aria-keyshortcuts="Control+K">
+      <a class="header__search" href={link("/games")} data-palette-open aria-keyshortcuts="Control+K">
         <Icon name="search" size={18} />
         <span class="header__search-text">Search games…</span>
         <kbd>Ctrl K</kbd>
@@ -46,7 +47,7 @@ const isActive = (href: string) =>
           data-sound
         />
       </Tooltip>
-      <Button class="header__pass" href="/#pass" size="sm" icon="bolt">
+      <Button class="header__pass" href={link("/#pass")} size="sm" icon="bolt">
         Get pass
       </Button>
       <button
@@ -74,7 +75,7 @@ const isActive = (href: string) =>
           </li>
         ))}
       </ol>
-      <Button href="/#pass" icon="bolt" block>
+      <Button href={link("/#pass")} icon="bolt" block>
         Get pass
       </Button>
     </nav>

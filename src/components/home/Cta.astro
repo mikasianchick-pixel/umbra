@@ -1,12 +1,13 @@
 ---
 import Button from "@/components/Button.astro";
+import { link } from "@/data/link";
 ---
 
 <section class="container" aria-labelledby="cta-title">
   <div class="cta" data-reveal>
     <h2 id="cta-title" class="cta__title">The night is young</h2>
     <p class="cta__text">Join 128 000 players. First month of Pass is on us.</p>
-    <Button href="/#pass" variant="hot" icon="play" data-magnetic>Play free now</Button>
+    <Button href={link("/#pass")} variant="hot" icon="play" data-magnetic>Play free now</Button>
   </div>
 </section>
 

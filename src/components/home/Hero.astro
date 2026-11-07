@@ -2,6 +2,7 @@
 import Button from "@/components/Button.astro";
 import Icon from "@/components/Icon.astro";
 import OnlineCounter from "@/components/OnlineCounter.astro";
+import { link } from "@/data/link";
 
 const stats = [
   { value: "2 400+", count: 2400, suffix: "+", label: "Games" },
@@ -75,8 +76,8 @@ const stats = [
     </p>
 
     <div class="hero__actions" data-intro="fade">
-      <Button href="/#pass" icon="bolt" data-magnetic>Get started</Button>
-      <Button href="/games" variant="ghost" icon="arrow">Browse games</Button>
+      <Button href={link("/#pass")} icon="bolt" data-magnetic>Get started</Button>
+      <Button href={link("/games")} variant="ghost" icon="arrow">Browse games</Button>
     </div>
 
     <dl class="hero__stats" data-intro="fade">

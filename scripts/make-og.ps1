@@ -7,7 +7,7 @@ $out = Join-Path $PSScriptRoot "..\public\og.png"
 
 & $chrome --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 `
   --window-size=1200,630 --virtual-time-budget=4000 `
-  --screenshot="$out" "http://localhost:4321/og" | Out-Null
+  --screenshot="$out" "http://localhost:4321/umbra/og" | Out-Null
 
 if (Test-Path $out) { "OK: $out" } else { "FAILED: is 'npm run dev' running?" }
 

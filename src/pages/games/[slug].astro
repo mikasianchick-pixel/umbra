@@ -9,6 +9,7 @@ import IconButton from "@/components/IconButton.astro";
 import Segmented from "@/components/Segmented.astro";
 import Dialog from "@/components/Dialog.astro";
 import GameCard from "@/components/GameCard.astro";
+import { link } from "@/data/link";
 import {
   games,
   formatPrice,
@@ -102,8 +103,8 @@ const sections = [
     <div class="gh__inner container">
       <nav class="crumbs" aria-label="Breadcrumb">
         <ol role="list">
-          <li><a href="/games">Store</a></li>
-          <li><a href={`/games?genre=${encodeURIComponent(game.tags[0] ?? "")}`}>{game.tags[0]}</a></li>
+          <li><a href={link("/games")}>Store</a></li>
+          <li><a href={link(`/games?genre=${encodeURIComponent(game.tags[0] ?? "")}`)}>{game.tags[0]}</a></li>
           <li aria-current="page">{game.name}</li>
         </ol>
       </nav>
@@ -111,7 +112,7 @@ const sections = [
       <div class="gh__main">
         <ul class="gh__tags" role="list">
           {game.badge && <li><Badge kind={game.badge}>{badgeLabel(game)}</Badge></li>}
-          {game.tags.map((t) => <li><Tag href={`/games?genre=${encodeURIComponent(t)}`}>{t}</Tag></li>)}
+          {game.tags.map((t) => <li><Tag href={link(`/games?genre=${encodeURIComponent(t)}`)}>{t}</Tag></li>)}
         </ul>
         <h1 class="gh__title" id="game-title">{game.coverTitle}</h1>
         <p class="gh__by">
@@ -323,7 +324,7 @@ const sections = [
           {game.features.pass ? "Play it with" : "Play more with"}<br />Umbra Pass
         </h2>
         <p>200+ games, one price. First month free.</p>
-        <Button href="/#pass" icon="bolt" size="sm">Get pass</Button>
+        <Button href={link("/#pass")} icon="bolt" size="sm">Get pass</Button>
       </section>
     </div>
   </div>

@@ -1,11 +1,12 @@
 ---
 import { footerNav } from "@/data/nav";
+import { link } from "@/data/link";
 ---
 
 <footer class="footer">
   <div class="footer__inner container">
     <div class="footer__brand">
-      <a class="footer__logo" href="/">
+      <a class="footer__logo" href={link("/")}>
         UMBRA
       </a>
       <p class="muted">Indie worlds for long nights.</p>

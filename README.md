@@ -3,7 +3,8 @@
 > **Portfolio project.** Umbra is not a real store: every game, studio, price and review is made up.
 > It exists to show design, 3D, animation, accessibility and clean front-end code in one place.
 
-**Live demo:** _coming soon_ · **Design:** Figma (tokens, components, desktop 1440 / mobile 375)
+**Live demo:** [mikasianchick-pixel.github.io/umbra](https://mikasianchick-pixel.github.io/umbra/) ·
+**Design:** Figma (tokens, components, desktop 1440 / mobile 375)
 
 ![Umbra home page — 3D crystal hero](docs/screenshots/home.png)
 
@@ -60,13 +61,14 @@ plain **CSS** (`@layer`, `oklch()`, `clamp()`, container queries, `:has()`, `@pr
 
 ```bash
 npm install
-npm run dev       # http://localhost:4321
+npm run dev       # http://localhost:4321/umbra/
 npm run build     # type check + static build into dist/
 npm run lint      # ESLint
 ```
 
-Set `SITE_URL` (for example in your hosting settings) so the sitemap and social previews use absolute URLs.
-`/?noloader` opens the home page without the loader.
+The site is built for GitHub Pages under `/umbra/` (`base` in `astro.config.mjs`), so locally it opens at
+`http://localhost:4321/umbra/`. Every push to `main` is built and deployed by `.github/workflows/deploy.yml`.
+For a custom domain set `SITE_URL` and `SITE_BASE=/`. `?noloader` opens the home page without the loader.
 
 ## Project structure
 

@@ -1,6 +1,7 @@
 // Тарифы Umbra Pass: переключатель месяц/год и цены, которые плавно «перетекают».
 // Это React-островок — единственное место секции, где нужно состояние.
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { link } from "@/data/link";
 
 type Billing = "monthly" | "yearly";
 
@@ -141,7 +142,7 @@ export default function Pricing() {
             </ul>
             <a
               className={`btn btn--md tier__cta ${t.popular ? "btn--primary" : "btn--ghost"}`}
-              href="/games"
+              href={link("/games")}
             >
               <span>{t.cta}</span>
             </a>

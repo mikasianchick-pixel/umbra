@@ -9,6 +9,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { link } from "@/data/link";
 
 interface GameItem {
   slug: string;
@@ -130,7 +131,7 @@ export default function CommandPalette({ games, pages }: Props) {
     const g: Item[] = games
       .filter((x) => match(`${x.name} ${x.genre}`))
       .slice(0, q ? 6 : 3)
-      .map((x) => ({ kind: "game", id: `g-${x.slug}`, title: x.name, meta: `${x.genre} · ${x.price}`, href: `/games/${x.slug}` }));
+      .map((x) => ({ kind: "game", id: `g-${x.slug}`, title: x.name, meta: `${x.genre} · ${x.price}`, href: link(`/games/${x.slug}`) }));
     const p: Item[] = pages
       .filter((x) => match(x.label))
       .map((x) => ({ kind: "page", id: `p-${x.href}`, title: x.label, meta: x.href, href: x.href }));

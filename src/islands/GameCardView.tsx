@@ -2,6 +2,7 @@
 import type { CSSProperties } from "react";
 import type { Game } from "@/data/games";
 import { badgeLabel, formatPrice } from "@/data/games";
+import { link } from "@/data/link";
 
 interface Props {
   game: Game;
@@ -57,7 +58,7 @@ export default function GameCardView({ game, wished, onWish, row = false }: Prop
       <div className="game-card__body">
         <p className="game-card__studio">{game.studio}</p>
         <h3 className="game-card__name">
-          <a href={`/games/${game.slug}`}>{game.name}</a>
+          <a href={link(`/games/${game.slug}`)}>{game.name}</a>
         </h3>
         <ul className="game-card__tags" role="list" aria-label="Genres">
           {game.tags.map((t) => (
