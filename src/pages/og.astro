@@ -1,0 +1,163 @@
+---
+// Служебная страница: макет картинки-превью для соцсетей (1200×630).
+// PNG снимается с неё скриптом scripts/make-og.ps1 (Chrome в headless-режиме) и кладётся в public/og.png.
+// В меню и в sitemap её нет, поисковикам она закрыта (noindex).
+import { Font } from "astro:assets";
+import "@/styles/tokens.css";
+import "@/styles/reset.css";
+import "@/styles/base.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Umbra OG image</title>
+    <Font cssVariable="--font-orbitron" preload />
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-jetbrains" />
+  </head>
+  <body>
+    <div class="og">
+      <div class="og__floor"></div>
+      <svg class="og__crystal" viewBox="0 0 400 520" aria-hidden="true">
+        <defs>
+          <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" style="stop-color: color-mix(in oklch, var(--accent), white 55%)"></stop>
+            <stop offset="1" style="stop-color: var(--accent)"></stop>
+          </linearGradient>
+          <linearGradient id="b" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: color-mix(in oklch, var(--accent-2), white 55%)"></stop>
+            <stop offset="1" style="stop-color: var(--accent-2)"></stop>
+          </linearGradient>
+          <linearGradient id="c" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: color-mix(in oklch, var(--accent), black 30%)"></stop>
+            <stop offset="1" style="stop-color: var(--surface-2)"></stop>
+          </linearGradient>
+          <linearGradient id="d" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: var(--hot)"></stop>
+            <stop offset="1" style="stop-color: color-mix(in oklch, var(--hot), black 70%)"></stop>
+          </linearGradient>
+          <linearGradient id="e" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: color-mix(in oklch, var(--accent-2), black 35%)"></stop>
+            <stop offset="1" style="stop-color: var(--surface-1)"></stop>
+          </linearGradient>
+        </defs>
+        <g stroke="white" stroke-opacity="0.35" stroke-width="1.2" stroke-linejoin="round">
+          <path d="M200 20 60 200 140 230 200 250z" fill="url(#a)"></path>
+          <path d="M200 20 340 200 260 230 200 250z" fill="url(#b)"></path>
+          <path d="M60 200 140 230 200 500z" fill="url(#c)"></path>
+          <path d="M140 230 200 250 200 500z" fill="url(#c)"></path>
+          <path d="M200 250 260 230 200 500z" fill="url(#d)"></path>
+          <path d="M260 230 340 200 200 500z" fill="url(#e)"></path>
+        </g>
+      </svg>
+
+      <p class="og__logo">Umbra</p>
+      <h1 class="og__title">
+        Play <span class="og__pill"></span> the<br />night <span>away</span>
+      </h1>
+      <p class="og__sub">Fictional neon launcher for indie games · Three.js · GSAP · Astro · React</p>
+    </div>
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    background: var(--bg);
+  }
+
+  body::after {
+    display: none;
+  }
+
+  .og {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    padding: 72px 80px;
+    background:
+      radial-gradient(36rem 30rem at 78% 30%, oklch(0.74 0.14 292 / 0.28), transparent 65%),
+      radial-gradient(20rem 20rem at 90% 80%, oklch(0.83 0.1 205 / 0.16), transparent 70%),
+      var(--bg);
+  }
+
+  .og__floor {
+    position: absolute;
+    inset: auto 0 0;
+    height: 220px;
+    perspective: 320px;
+    mask-image: linear-gradient(to bottom, transparent, black 50%);
+  }
+
+  .og__floor::before {
+    content: "";
+    position: absolute;
+    inset: 0 -50% -20%;
+    background-image:
+      linear-gradient(oklch(0.74 0.14 292 / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.74 0.14 292 / 0.3) 1px, transparent 1px);
+    background-size: 64px 64px;
+    transform: rotateX(62deg);
+    transform-origin: bottom;
+  }
+
+  /* панель разработчика Astro не должна попасть на снимок */
+  :global(astro-dev-toolbar) {
+    display: none !important;
+  }
+
+  .og__crystal {
+    position: absolute;
+    top: 70px;
+    right: 70px;
+    width: 230px;
+    filter: drop-shadow(0 0 50px oklch(0.74 0.14 292 / 0.6));
+  }
+
+  .og__logo {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-shadow: var(--glow-text);
+  }
+
+  .og__title {
+    position: relative;
+    margin-top: 70px;
+    font-size: 96px;
+    line-height: 1.02;
+    color: var(--text);
+  }
+
+  .og__title span:not(.og__pill) {
+    color: var(--accent);
+    text-shadow: 0 0 30px oklch(0.74 0.14 292 / 0.6);
+  }
+
+  .og__pill {
+    display: inline-block;
+    width: 150px;
+    height: 80px;
+    vertical-align: -6px;
+    border-radius: 999px;
+    background: var(--gradient-accent);
+    box-shadow: 0 0 30px oklch(0.74 0.14 292 / 0.5);
+  }
+
+  .og__sub {
+    position: relative;
+    margin-top: 40px;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+</style>

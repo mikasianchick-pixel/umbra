@@ -1,6 +1,7 @@
 ---
 import SectionHead from "@/components/SectionHead.astro";
 import Icon from "@/components/Icon.astro";
+import FloatCrystals from "@/components/FloatCrystals.astro";
 
 const devices = [
   { label: "Desktop", color: "var(--accent)" },
@@ -11,6 +12,13 @@ const friends = ["var(--accent)", "var(--accent-2)", "var(--hot)", "var(--accent
 ---
 
 <section class="bento section container" aria-labelledby="bento-title">
+  <FloatCrystals
+    items={[
+      { x: 92, y: 4, size: 18, speed: -60, color: "accent-2" },
+      { x: -3, y: 40, size: 26, speed: -120, color: "accent" },
+      { x: 97, y: 70, size: 14, speed: -40, color: "accent" },
+    ]}
+  />
   <SectionHead id="bento-title" num="02" label="Platform" title="Built for long nights" />
 
   <ul class="bento__grid" role="list">
@@ -78,6 +86,11 @@ const friends = ["var(--accent)", "var(--accent-2)", "var(--hot)", "var(--accent
 </script>
 
 <style>
+  .bento {
+    position: relative;
+    isolation: isolate;
+  }
+
   .bento__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

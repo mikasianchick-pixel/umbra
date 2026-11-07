@@ -1,0 +1,76 @@
+---
+// Декоративные «летающие» кристаллики на фоне секции. При прокрутке каждый плывёт со своей скоростью
+// (data-float, обрабатывает scripts/home.ts), плюс медленно покачивается.
+// При prefers-reduced-motion их нет совсем — как договорились в плане.
+interface Crystal {
+  /** позиция в процентах от секции */
+  x: number;
+  y: number;
+  size: number;
+  /** скорость при прокрутке: отрицательная — вверх, положительная — вниз */
+  speed: number;
+  color: "accent" | "accent-2" | "hot";
+}
+
+interface Props {
+  items: Crystal[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="floats" aria-hidden="true">
+  {
+    items.map((c, i) => (
+      <svg
+        class="float"
+        viewBox="0 0 20 32"
+        data-float={c.speed}
+        style={`left: ${c.x}%; top: ${c.y}%; width: ${c.size}px; --c: var(--${c.color}); --i: ${i}`}
+      >
+        <path d="M10 0 0 12l10 20 10-20z" />
+        <path d="M10 0v32M0 12h20" />
+      </svg>
+    ))
+  }
+</div>
+
+<style>
+  .floats {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .float {
+    position: absolute;
+    height: auto;
+    fill: color-mix(in oklch, var(--c) 25%, transparent);
+    stroke: var(--c);
+    stroke-width: 1;
+    stroke-linejoin: round;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 8px var(--c));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .float {
+      animation: bob 6s var(--ease-in-out) infinite;
+      animation-delay: calc(var(--i) * -1.7s);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floats {
+      display: none;
+    }
+  }
+
+  @keyframes bob {
+    50% {
+      rotate: 12deg;
+      scale: 1.1;
+    }
+  }
+</style>

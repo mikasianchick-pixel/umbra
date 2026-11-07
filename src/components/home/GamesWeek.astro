@@ -114,6 +114,12 @@ import { games } from "@/data/games";
     box-shadow: 0 0 20px oklch(0.74 0.14 292 / 0.4);
   }
 
+  .week__nav :global(.week__next:not(:disabled):focus-visible) {
+    box-shadow:
+      0 0 20px oklch(0.74 0.14 292 / 0.4),
+      var(--focus-ring);
+  }
+
   .week__track {
     display: flex;
     gap: var(--space-6);

@@ -292,10 +292,24 @@ export function createHeroScene(host: HTMLElement, { calm, lite }: Options): Her
   let last = performance.now();
   const render = () => renderer.render(scene, camera);
 
+  // автоупрощение: если устройство долго не тянет 40 FPS — рисуем в меньшем разрешении
+  let slowFor = 0;
+  let downgraded = lite;
+
   const frame = (now: number) => {
     // время кадра в секундах; не больше 50 мс, чтобы после паузы ничего не «прыгало»
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
+
+    if (!downgraded) {
+      slowFor = dt > 1 / 40 ? slowFor + dt : Math.max(0, slowFor - dt);
+      if (slowFor > 2) {
+        downgraded = true;
+        renderer.setPixelRatio(1);
+        pointsMat.uniforms.uPixelRatio!.value = 1;
+        resize();
+      }
+    }
     const t = (uniforms.uTime.value += dt);
 
     appear += (appearTarget - appear) * Math.min(dt * 2.5, 1);

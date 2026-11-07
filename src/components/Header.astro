@@ -1,6 +1,8 @@
 ---
 import Button from "./Button.astro";
 import Icon from "./Icon.astro";
+import IconButton from "./IconButton.astro";
+import Tooltip from "./Tooltip.astro";
 import { mainNav } from "@/data/nav";
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
@@ -33,6 +35,17 @@ const isActive = (href: string) =>
         <span class="header__search-text">Search games…</span>
         <kbd>Ctrl K</kbd>
       </a>
+      <Tooltip id="tip-ambient" text="Ambient sound" kbd="M" placement="bottom">
+        <IconButton
+          icon="volume"
+          label="Ambient sound"
+          size="sm"
+          class="header__sound"
+          aria-pressed="false"
+          aria-keyshortcuts="M"
+          data-sound
+        />
+      </Tooltip>
       <Button class="header__pass" href="/#pass" size="sm" icon="bolt">
         Get pass
       </Button>
@@ -69,6 +82,9 @@ const isActive = (href: string) =>
 </header>
 
 <script>
+  import { initAmbientButtons } from "@/scripts/ambient";
+  initAmbientButtons();
+
   const burger = document.querySelector<HTMLButtonElement>(".header__burger");
   const menu = document.getElementById("mobile-menu");
 
@@ -198,6 +214,18 @@ const isActive = (href: string) =>
       border-radius: var(--radius-sm);
       background: var(--surface-3);
       font-size: var(--text-2xs);
+    }
+
+    /* включённый звук — фиолетовый, а не розовый: розовый на экране только один */
+    .header__actions :global(.header__sound[aria-pressed="true"]) {
+      color: var(--accent);
+      box-shadow:
+        inset 0 0 0 1px var(--border-strong),
+        0 0 16px oklch(0.74 0.14 292 / 0.4);
+    }
+
+    .header__actions :global(.header__sound[aria-pressed="true"] svg) {
+      fill: none;
     }
 
     .header__burger {

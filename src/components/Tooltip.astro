@@ -8,12 +8,14 @@ interface Props {
   kbd?: string;
   /** start — прижать к левому краю элемента (если он у края экрана) */
   align?: "center" | "start";
+  /** bottom — подсказка под элементом (для шапки у верхнего края экрана) */
+  placement?: "top" | "bottom";
 }
 
-const { id, text, kbd, align = "center" } = Astro.props;
+const { id, text, kbd, align = "center", placement = "top" } = Astro.props;
 ---
 
-<span class:list={["tip", `tip--${align}`]} data-tip={id}>
+<span class:list={["tip", `tip--${align}`, `tip--${placement}`]} data-tip={id}>
   <slot />
   <span class="tip__bubble" role="tooltip" id={id}>
     {text}
@@ -87,6 +89,12 @@ const { id, text, kbd, align = "center" } = Astro.props;
 
     .tip.is-dismissed .tip__bubble {
       opacity: 0;
+    }
+
+    .tip--bottom .tip__bubble {
+      top: calc(100% + var(--space-2));
+      bottom: auto;
+      translate: -50% -4px;
     }
 
     .tip--start .tip__bubble {

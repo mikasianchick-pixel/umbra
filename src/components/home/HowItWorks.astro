@@ -1,5 +1,6 @@
 ---
 import SectionHead from "@/components/SectionHead.astro";
+import FloatCrystals from "@/components/FloatCrystals.astro";
 
 // цвета панели для каждого шага — свет «перетекает» вместе с прокруткой
 const steps = [
@@ -32,6 +33,13 @@ const pad = (n: number) => String(n).padStart(2, "0");
 ---
 
 <section class="how section container" id="how" aria-labelledby="how-title" data-steps>
+  <FloatCrystals
+    items={[
+      { x: 40, y: 20, size: 16, speed: -150, color: "accent" },
+      { x: 2, y: 62, size: 22, speed: -80, color: "hot" },
+      { x: 44, y: 86, size: 12, speed: -200, color: "accent-2" },
+    ]}
+  />
   <SectionHead id="how-title" num="03" label="How it works" title="From wishlist to world" />
 
   <div class="how__grid">
@@ -72,6 +80,11 @@ const pad = (n: number) => String(n).padStart(2, "0");
 </section>
 
 <style>
+  .how {
+    position: relative;
+    isolation: isolate;
+  }
+
   .how__grid {
     display: grid;
     gap: var(--space-8);

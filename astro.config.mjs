@@ -1,8 +1,14 @@
 // @ts-check
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
+import { loadEnv } from "vite";
+
+// переменные окружения (и из .env, и из настроек хостинга) с префиксом SITE_
+const { SITE_URL } = loadEnv("", ".", "SITE_");
 
 export default defineConfig({
+  // полный адрес сайта для og:image, canonical и sitemap; на хостинге задаётся переменной SITE_URL (этап 10)
+  site: SITE_URL ?? "http://localhost:4321",
   integrations: [react()],
   // переходы между страницами — родные View Transitions браузера (@view-transition в base.css), без JS-роутера;
   // предзагрузка делает их мгновенными

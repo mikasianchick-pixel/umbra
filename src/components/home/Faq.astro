@@ -1,6 +1,7 @@
 ---
 import SectionHead from "@/components/SectionHead.astro";
 import Icon from "@/components/Icon.astro";
+import FloatCrystals from "@/components/FloatCrystals.astro";
 
 const faq = [
   {
@@ -23,6 +24,12 @@ const faq = [
 ---
 
 <section class="faq section container" id="faq" aria-labelledby="faq-title">
+  <FloatCrystals
+    items={[
+      { x: 8, y: 55, size: 28, speed: -100, color: "accent-2" },
+      { x: 26, y: 80, size: 14, speed: -170, color: "accent" },
+    ]}
+  />
   <SectionHead id="faq-title" num="05" label="FAQ" title="Questions" />
 
   <div class="faq__list" data-reveal>
@@ -42,6 +49,11 @@ const faq = [
 </section>
 
 <style>
+  .faq {
+    position: relative;
+    isolation: isolate;
+  }
+
   .faq__list {
     display: grid;
     gap: var(--space-3);

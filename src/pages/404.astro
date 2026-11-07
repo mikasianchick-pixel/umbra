@@ -3,7 +3,11 @@ import Base from "@/layouts/Base.astro";
 import Button from "@/components/Button.astro";
 ---
 
-<Base title="Game over" description="404 — this page fell out of the signal. Play Static Rain while you are here.">
+<Base
+  title="Game over"
+  description="404 — this page fell out of the signal. Play Static Rain while you are here."
+  noindex
+>
   <section class="lost container" aria-labelledby="lost-title">
     <div class="lost__text">
       <p class="eyebrow">Error 404 · signal lost</p>

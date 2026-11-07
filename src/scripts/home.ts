@@ -150,14 +150,16 @@ function countUp(els: Iterable<HTMLElement>, delay = 0) {
 function reveals() {
   if (calm) return;
 
+  // Прячем только прозрачностью (opacity), а не visibility (autoAlpha):
+  // невидимые через visibility элементы браузер пропускает при Tab — клавиатура не дошла бы до кнопок.
   ScrollTrigger.batch("[data-reveal]", {
     start: "top 88%",
     once: true,
     onEnter: (els) =>
       gsap.fromTo(
         els,
-        { autoAlpha: 0, y: 48 },
-        { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.1 },
+        { opacity: 0, y: 48 },
+        { opacity: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.1 },
       ),
   });
   // до появления — спрятаны (только то, что ниже первого экрана)
@@ -165,8 +167,9 @@ function reveals() {
     gsap.utils
       .toArray<HTMLElement>("[data-reveal]")
       .filter((el) => el.getBoundingClientRect().top > innerHeight),
-    { autoAlpha: 0, y: 48 },
+    { opacity: 0, y: 48 },
   );
+  revealOnFocus();
 
   // цифры и прогресс-бар запускаются, когда видны
   document.querySelectorAll<HTMLElement>("main > :not(.hero) [data-count]").forEach((el) => {
@@ -185,14 +188,33 @@ function reveals() {
     );
   });
 
+  // летающие кристаллы: каждый плывёт при прокрутке со своей скоростью (многослойный параллакс)
+  document.querySelectorAll<SVGElement>("[data-float]").forEach((el) => {
+    gsap.to(el, {
+      y: Number(el.dataset.float),
+      ease: "none",
+      scrollTrigger: { trigger: el.closest("section"), start: "top bottom", end: "bottom top", scrub: true },
+    });
+  });
+
   // карточки «Игр недели» влетают лесенкой
   gsap.from(".week__item", {
-    autoAlpha: 0,
+    opacity: 0,
     x: 80,
     duration: 1,
     ease: "expo.out",
     stagger: 0.08,
     scrollTrigger: { trigger: ".week__track", start: "top 85%", once: true },
+  });
+}
+
+/** Если фокус с клавиатуры попал в ещё не проявившийся блок — проявить его сразу. */
+function revealOnFocus() {
+  document.addEventListener("focusin", (e) => {
+    const block = (e.target as Element).closest<HTMLElement>("[data-reveal], .week__item");
+    if (block && Number(getComputedStyle(block).opacity) < 1) {
+      gsap.to(block, { opacity: 1, y: 0, x: 0, duration: 0.3, overwrite: true });
+    }
   });
 }
 
