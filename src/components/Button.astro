@@ -1,0 +1,134 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Icon, { type IconName } from "./Icon.astro";
+
+type Variant = "primary" | "ghost" | "hot";
+
+type Props = {
+  variant?: Variant;
+  size?: "md" | "sm";
+  icon?: IconName;
+  /** растянуть на всю ширину (на телефоне — под большой палец) */
+  block?: boolean;
+  href?: string;
+  class?: string;
+} & Omit<HTMLAttributes<"button">, "class"> &
+  Omit<HTMLAttributes<"a">, "class">;
+
+const {
+  variant = "primary",
+  size = "md",
+  icon,
+  block = false,
+  href,
+  class: className,
+  type = "button",
+  ...rest
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+const filledIcon = icon === "play" || icon === "bolt";
+---
+
+<Tag
+  class:list={["btn", `btn--${variant}`, `btn--${size}`, { "btn--block": block }, className]}
+  href={href}
+  type={href ? undefined : type}
+  {...rest}
+>
+  {icon && <Icon name={icon} size={size === "sm" ? 14 : 16} filled={filledIcon} />}
+  <span>
+    <slot />
+  </span>
+</Tag>
+
+<style>
+  @layer components {
+    .btn {
+      --btn-bg: var(--surface-1);
+      --btn-fg: var(--text);
+      --btn-shadow: none;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-7);
+      border-radius: var(--radius-md);
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      box-shadow: var(--btn-shadow);
+      font-family: var(--font-display);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      white-space: nowrap;
+      transition:
+        background-color var(--dur-fast) var(--ease-out),
+        box-shadow var(--dur) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
+    }
+
+    .btn--sm {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-xs);
+      border-radius: var(--radius-md);
+      gap: var(--space-2);
+    }
+
+    .btn--block {
+      display: flex;
+      width: 100%;
+    }
+
+    .btn--primary {
+      --btn-bg: var(--accent);
+      --btn-fg: var(--bg);
+      --btn-shadow: 0 0 24px oklch(0.74 0.14 292 / 0.35);
+    }
+
+    .btn--primary:hover {
+      --btn-bg: var(--accent-hover);
+      --btn-shadow: 0 0 40px oklch(0.74 0.14 292 / 0.55);
+    }
+
+    .btn--hot {
+      --btn-bg: var(--hot);
+      --btn-fg: var(--bg);
+      --btn-shadow: 0 0 24px oklch(0.74 0.14 352 / 0.35);
+    }
+
+    .btn--hot:hover {
+      --btn-bg: var(--hot-hover);
+      --btn-shadow: 0 0 44px oklch(0.74 0.14 352 / 0.55);
+    }
+
+    .btn--ghost {
+      --btn-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.3);
+    }
+
+    .btn--ghost:hover {
+      --btn-bg: var(--surface-2);
+      --btn-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn:focus-visible {
+      outline: none;
+      box-shadow: var(--btn-shadow), var(--focus-ring);
+    }
+
+    .btn:disabled,
+    .btn[aria-disabled="true"] {
+      --btn-bg: var(--surface-2);
+      --btn-fg: oklch(0.7 0.02 285 / 0.5);
+      --btn-shadow: none;
+      pointer-events: none;
+    }
+  }
+</style>

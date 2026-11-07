@@ -1,0 +1,397 @@
+---
+import Base from "@/layouts/Base.astro";
+import Button from "@/components/Button.astro";
+import {
+  baseColors,
+  accentColors,
+  stateColors,
+  typeScale,
+  spaceScale,
+  radii,
+  glows,
+} from "@/data/tokens";
+---
+
+<Base
+  title="Design system"
+  description="Umbra design tokens: colour, typography, spacing, radius and glow — one source of truth for Figma and code."
+>
+  <section class="hero container">
+    <p class="eyebrow">Umbra / design system</p>
+    <h1 class="hero__title">Tokens</h1>
+    <p class="lead">
+      One source of truth for Figma and code. Colours are picked in OKLCH, so the three accents
+      share the same lightness and chroma — they glow together without hurting the eyes.
+    </p>
+  </section>
+
+  <!-- 01 COLOR -->
+  <section class="block container" aria-labelledby="color">
+    <header class="block__head">
+      <p class="eyebrow">01</p>
+      <h2 id="color">Color</h2>
+    </header>
+
+    <ul class="swatches swatches--base" role="list">
+      {baseColors.map((c) => (
+        <li class="swatch">
+          <span class="swatch__chip" style={`background: var(${c.name})`} />
+          <code class="swatch__name">{c.name}</code>
+          <span class="swatch__meta">
+            oklch({c.oklch}) · {c.hex}
+          </span>
+          <span class="swatch__meta">{c.use}</span>
+        </li>
+      ))}
+    </ul>
+
+    <ul class="swatches swatches--accent" role="list">
+      {accentColors.map((c) => (
+        <li class="swatch">
+          <span
+            class="swatch__chip swatch__chip--glow"
+            style={`--c: var(${c.name}); background: var(${c.name})`}
+          >
+            <code>{c.name}</code>
+          </span>
+          <span class="swatch__meta">
+            oklch({c.oklch}) · {c.hex}
+          </span>
+          <span class="swatch__meta">{c.use}</span>
+        </li>
+      ))}
+    </ul>
+
+    <div
+      class="gradient"
+      role="img"
+      aria-label="Signature gradient: accent to accent-2 to hot"
+    ></div>
+    <div class="gradient-meta">
+      <code class="muted">--gradient-signature · hero, Umbra Pass, loaders</code>
+      <ul class="states" role="list">
+        {stateColors.map((c) => (
+          <li>
+            <span class="dot" style={`background: var(${c.name})`} />
+            <code class="muted">
+              {c.name} {c.hex}
+            </code>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 TYPOGRAPHY -->
+  <section class="block container" aria-labelledby="type">
+    <header class="block__head">
+      <p class="eyebrow">02</p>
+      <h2 id="type">Typography</h2>
+    </header>
+    <dl class="type">
+      {typeScale.map((t) => (
+        <div class="type__row">
+          <dt class="mono">
+            {t.label}
+            <br />
+            <span class="muted">{t.token}</span>
+          </dt>
+          <dd class={`type__sample type__sample--${t.font}`} style={`font-size: var(${t.token})`}>
+            {t.sample}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- 03 SPACE & RADIUS -->
+  <section class="block container" aria-labelledby="space">
+    <header class="block__head">
+      <p class="eyebrow">03</p>
+      <h2 id="space">Space &amp; radius</h2>
+      <p class="muted">4px grid. Paddings, gaps and sections all come from this scale.</p>
+    </header>
+    <div class="space-radius">
+      <ul class="space" role="list">
+        {spaceScale.map((s) => (
+          <li>
+            <span class="space__box" style={`--s: var(--space-${s})`} />
+            <code>{s * 4}</code>
+          </li>
+        ))}
+      </ul>
+      <ul class="radii" role="list">
+        {radii.map((r) => (
+          <li>
+            <span class="radii__box" style={`border-radius: var(${r})`} />
+            <code>{r}</code>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 GLOW -->
+  <section class="block container" aria-labelledby="glow">
+    <header class="block__head">
+      <p class="eyebrow">04</p>
+      <h2 id="glow">Glow</h2>
+      <p class="muted">
+        Small glow for interactive elements, large glow for one hero element per screen.
+      </p>
+    </header>
+    <ul class="glows" role="list">
+      {glows.map((g) => (
+        <li>
+          <span
+            class="glows__box"
+            style={
+              g === "none"
+                ? ""
+                : `box-shadow: var(${g}), inset 0 0 0 1px oklch(0.74 0.14 292 / 0.7)`
+            }
+          />
+          <code>{g === "none" ? "--glow-none" : g}</code>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- 05 BUTTONS -->
+  <section class="block container" aria-labelledby="buttons">
+    <header class="block__head">
+      <p class="eyebrow">05</p>
+      <h2 id="buttons">Buttons</h2>
+      <p class="muted">Hover and Tab through them — the focus ring is cyan with a 3px gap.</p>
+    </header>
+    <div class="buttons">
+      <Button icon="bolt">Get started</Button>
+      <Button variant="ghost" icon="arrow">
+        Browse games
+      </Button>
+      <Button variant="hot" icon="play">
+        Play now
+      </Button>
+      <Button disabled>Disabled</Button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: var(--space-16) var(--space-8);
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .hero__title {
+    font-size: var(--text-display);
+    text-shadow: var(--glow-text);
+  }
+
+  .block {
+    padding-block: var(--space-16);
+    border-top: 1px solid var(--border);
+  }
+
+  .block__head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-10);
+  }
+
+  code {
+    font-size: var(--text-xs);
+  }
+
+  /* ---------- цвета ---------- */
+  .swatches {
+    display: grid;
+    gap: var(--space-6);
+    margin-bottom: var(--space-10);
+  }
+
+  .swatches--base {
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  }
+
+  .swatches--accent {
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+
+  .swatch {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .swatch__chip {
+    height: 8.75rem;
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .swatch__chip--glow {
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-5);
+    height: 11rem;
+    color: var(--bg);
+    box-shadow: 0 0 48px color-mix(in oklch, var(--c) 45%, transparent);
+  }
+
+  .swatch__chip--glow code {
+    font-size: var(--text-base);
+    font-weight: 700;
+  }
+
+  .swatch__name {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .swatch__meta {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .gradient {
+    height: 4rem;
+    border-radius: var(--radius-md);
+    background: var(--gradient-signature);
+    box-shadow: 0 0 60px oklch(0.74 0.14 292 / 0.3);
+  }
+
+  .gradient-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .states {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .states li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  /* ---------- типографика ---------- */
+  .type {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .type__row {
+    display: grid;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  .type__row dt {
+    font-size: var(--text-xs);
+  }
+
+  .type__sample {
+    line-height: var(--leading-tight);
+  }
+
+  .type__sample--display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .type__sample--body {
+    color: var(--text-muted);
+    line-height: var(--leading-normal);
+  }
+
+  .type__sample--mono {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    color: var(--accent-2);
+  }
+
+  @media (min-width: 48rem) {
+    .type__row {
+      grid-template-columns: 18rem 1fr;
+    }
+  }
+
+  /* ---------- отступы и радиусы ---------- */
+  .space-radius {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-12);
+  }
+
+  .space {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  .space li,
+  .radii li,
+  .glows li {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+
+  .space__box {
+    width: var(--s);
+    height: var(--s);
+    border-radius: min(4px, calc(var(--s) / 4));
+    background: oklch(0.74 0.14 292 / 0.85);
+  }
+
+  .radii {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  .radii__box {
+    width: 6rem;
+    height: 6rem;
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.6);
+  }
+
+  .glows {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-12) var(--space-8);
+  }
+
+  .glows__box {
+    width: 100%;
+    height: 7.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+</style>

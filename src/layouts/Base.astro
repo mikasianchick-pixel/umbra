@@ -1,0 +1,74 @@
+---
+import { Font } from "astro:assets";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import "@/styles/tokens.css";
+import "@/styles/reset.css";
+import "@/styles/base.css";
+import "@/styles/utilities.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Umbra — a fictional neon game platform. A portfolio project showing design, 3D, animation and front-end skills.",
+} = Astro.props;
+const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- порядок слоёв задаётся первым упоминанием; сборщик может склеить CSS компонентов раньше tokens.css -->
+    <style is:inline>
+      @layer reset, base, components, utilities;
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#090910" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Font cssVariable="--font-orbitron" preload />
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-jetbrains" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: fixed;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: var(--z-overlay);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    translate: 0 -200%;
+    transition: translate var(--dur) var(--ease-out);
+  }
+
+  .skip-link:focus-visible {
+    translate: 0 0;
+  }
+
+  main {
+    padding-top: calc(var(--header-h) + var(--header-top) * 2);
+  }
+</style>

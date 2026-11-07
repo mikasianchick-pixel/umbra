@@ -1,0 +1,113 @@
+/* Порядок слоёв: чем позже слой, тем он сильнее. Объявляем один раз, в первом подключаемом файле. */
+@layer reset, base, components, utilities;
+
+/*
+  Токены дизайна Umbra — палитра v2 «мягкий неон».
+  Источник правды: Figma «Umbra — Tokens v2». Цвета в OKLCH: у трёх акцентов
+  одинаковые яркость и насыщенность, поэтому они смотрятся одной семьёй.
+*/
+:root {
+  color-scheme: dark;
+
+  /* ---------- цвета ---------- */
+  --bg: oklch(0.145 0.014 285);
+  --surface-1: oklch(0.185 0.018 285);
+  --surface-2: oklch(0.225 0.022 285);
+  --surface-3: oklch(0.265 0.024 285);
+  --line: oklch(0.3 0.03 285);
+  --text: oklch(0.94 0.008 285);
+  --text-muted: oklch(0.7 0.02 285);
+
+  --accent: oklch(0.74 0.14 292);
+  --accent-hover: oklch(0.8 0.12 292);
+  --accent-2: oklch(0.83 0.1 205);
+  --hot: oklch(0.74 0.14 352);
+  --hot-hover: oklch(0.8 0.12 352);
+  --success: oklch(0.8 0.13 155);
+  --danger: oklch(0.7 0.15 22);
+
+  --border: oklch(0.74 0.14 292 / 0.14);
+  --border-strong: oklch(0.74 0.14 292 / 0.35);
+  --glass: oklch(0.185 0.018 285 / 0.6);
+
+  --gradient-signature: linear-gradient(90deg, var(--accent), var(--accent-2) 55%, var(--hot));
+  --gradient-accent: linear-gradient(90deg, var(--accent), var(--accent-2));
+
+  /* ---------- свечения (×0.7 от «яркого» неона) ---------- */
+  --glow-sm: 0 0 16px oklch(0.74 0.14 292 / 0.35);
+  --glow-md: 0 0 32px oklch(0.74 0.14 292 / 0.4), 0 0 8px oklch(0.83 0.1 205 / 0.18);
+  --glow-lg: 0 0 64px oklch(0.74 0.14 292 / 0.42), 0 0 24px oklch(0.83 0.1 205 / 0.25);
+  --glow-hot: 0 0 28px oklch(0.74 0.14 352 / 0.4);
+  --glow-text: 0 0 24px oklch(0.74 0.14 292 / 0.5);
+  --focus-ring: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent-2);
+
+  /* ---------- шрифты ---------- */
+  --font-display: var(--font-orbitron), "Arial Black", sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* плавная типографика: от телефона 375px до экрана 1440px */
+  --text-2xs: 0.6875rem; /* 11 */
+  --text-xs: 0.75rem; /* 12 */
+  --text-sm: 0.875rem; /* 14 */
+  --text-base: 1rem; /* 16 */
+  --text-lg: clamp(1rem, 0.93rem + 0.3vw, 1.125rem); /* 16 → 18 */
+  --text-xl: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem); /* 17 → 20 */
+  --text-2xl: clamp(1.125rem, 0.98rem + 0.6vw, 1.375rem); /* 18 → 22 */
+  --text-3xl: clamp(1.75rem, 1.4rem + 1.5vw, 2rem); /* 28 → 32 */
+  --text-4xl: clamp(1.75rem, 1.1rem + 2.8vw, 3rem); /* 28 → 48 */
+  --text-5xl: clamp(2.25rem, 1.2rem + 4.4vw, 3.5rem); /* 36 → 56 */
+  --text-display: clamp(3rem, 1.6rem + 6vw, 5.75rem); /* 48 → 92 */
+
+  --leading-tight: 1.1;
+  --leading-normal: 1.6;
+  --tracking-display: 0.03em;
+  --tracking-mono: 0.12em;
+
+  /* ---------- отступы (шаг 4px) ---------- */
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.25rem; /* 20 */
+  --space-6: 1.5rem; /* 24 */
+  --space-7: 1.75rem; /* 28 */
+  --space-8: 2rem; /* 32 */
+  --space-10: 2.5rem; /* 40 */
+  --space-12: 3rem; /* 48 */
+  --space-16: 4rem; /* 64 */
+  --space-24: 6rem; /* 96 */
+  --space-32: 8rem; /* 128 */
+  --section-gap: clamp(var(--space-16), 4rem + 4vw, var(--space-32));
+
+  /* ---------- радиусы ---------- */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* ---------- сетка ---------- */
+  --container: 78rem; /* 1248 */
+  --gutter: clamp(var(--space-6), 5vw, var(--space-24)); /* 24 → 96 */
+  --header-h: 72px;
+  --header-top: clamp(var(--space-3), 1.5vw, var(--space-6));
+
+  /* ---------- движение ---------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 150ms;
+  --dur: 300ms;
+  --dur-slow: 600ms;
+
+  /* ---------- слои по оси Z ---------- */
+  --z-header: 50;
+  --z-overlay: 100;
+  --z-toast: 200;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --header-h: 56px;
+  }
+}

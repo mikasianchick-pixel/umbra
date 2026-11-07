@@ -1,15 +1,40 @@
 ---
-// Временная страница: проверка, что проект собирается. Настоящая главная — этап 5.
+// Временная главная до этапа 5: проверяем шапку, шрифты и токены.
+import Base from "@/layouts/Base.astro";
+import Button from "@/components/Button.astro";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Umbra — setup</title>
-  </head>
-  <body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#090910;color:#eaeaf0;font-family:system-ui">
-    <p>Umbra · stage 2 · setup OK</p>
-  </body>
-</html>
+<Base title="Umbra">
+  <section class="soon container">
+    <p class="eyebrow">Stage 3 · foundation</p>
+    <h1 class="soon__title">
+      Play the <span class="glow-text">night</span>
+    </h1>
+    <p class="lead">
+      The home page is on its way. Meanwhile, the design system is live — every colour, font and
+      glow you will see here.
+    </p>
+    <div class="soon__actions">
+      <Button href="/system" icon="arrow">
+        Open design system
+      </Button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .soon {
+    min-height: 60svh;
+    display: grid;
+    align-content: center;
+    gap: var(--space-6);
+  }
+
+  .soon__title {
+    font-size: var(--text-display);
+  }
+
+  .soon__title span {
+    color: var(--accent);
+  }
+</style>
