@@ -1,0 +1,122 @@
+---
+// Место для тостов (один раз на страницу, в Base.astro).
+// Показать из разметки: кнопка с data-toast="Текст" (и data-toast-action="Undo").
+// Показать из кода: import { toast } from "@/scripts/toast".
+---
+
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+
+<script>
+  import { toast } from "@/scripts/toast";
+
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>("[data-toast]");
+    if (btn) toast(btn.dataset.toast ?? "", { action: btn.dataset.toastAction });
+  });
+</script>
+
+<!-- тосты создаются скриптом, поэтому стили глобальные -->
+<style is:global>
+  @layer components {
+    .toasts {
+      position: fixed;
+      inset: auto var(--space-4) var(--space-4);
+      z-index: var(--z-toast);
+      display: grid;
+      justify-items: center;
+      gap: var(--space-3);
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      width: min(100%, 29.25rem);
+      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      box-shadow:
+        inset 0 0 0 1px oklch(0.8 0.13 155 / 0.35),
+        0 0 30px oklch(0 0 0 / 0.5);
+      pointer-events: auto;
+    }
+
+    .toast__icon {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--success);
+      color: var(--bg);
+    }
+
+    .toast__text {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .toast__action {
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .toast__action:hover {
+      background: var(--surface-3);
+    }
+
+    .toast__close {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: var(--text-muted);
+    }
+
+    .toast__close:hover {
+      color: var(--text);
+      background: var(--surface-3);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .toast {
+        animation: toast-in var(--dur) var(--ease-out);
+      }
+
+      .toast.is-leaving {
+        animation: toast-out var(--dur) var(--ease-out) forwards;
+      }
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        translate: 0 24px;
+        scale: 0.96;
+      }
+    }
+
+    @keyframes toast-out {
+      to {
+        opacity: 0;
+        translate: 0 12px;
+      }
+    }
+
+    @media (min-width: 48rem) {
+      .toasts {
+        inset: auto var(--space-6) var(--space-6) auto;
+        justify-items: end;
+      }
+    }
+  }
+</style>

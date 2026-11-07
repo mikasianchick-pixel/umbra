@@ -1,0 +1,141 @@
+---
+// Вкладки по образцу WAI-ARIA: стрелки ← → / Home / End двигают выбор,
+// Tab уходит сразу в содержимое панели. Панели — именованные слоты с id вкладок.
+interface Tab {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  /** уникальный префикс, если на странице несколько наборов вкладок */
+  id: string;
+  label: string;
+  tabs: Tab[];
+}
+
+const { id, label, tabs } = Astro.props;
+const panels = await Promise.all(tabs.map((t) => Astro.slots.render(t.id)));
+---
+
+<div class="tabs" data-tabs>
+  <div class="tabs__list" role="tablist" aria-label={label}>
+    {
+      tabs.map((t, i) => (
+        <button
+          class="tabs__tab"
+          type="button"
+          role="tab"
+          id={`${id}-tab-${t.id}`}
+          aria-controls={`${id}-panel-${t.id}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {t.label}
+        </button>
+      ))
+    }
+  </div>
+  {
+    tabs.map((t, i) => (
+      <div
+        class="tabs__panel"
+        role="tabpanel"
+        id={`${id}-panel-${t.id}`}
+        aria-labelledby={`${id}-tab-${t.id}`}
+        tabindex="0"
+        hidden={i !== 0}
+        set:html={panels[i]}
+      />
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+
+    const select = (next: HTMLButtonElement) => {
+      for (const tab of tabs) {
+        const on = tab === next;
+        tab.setAttribute("aria-selected", String(on));
+        tab.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(tab.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !on;
+      }
+      next.focus();
+    };
+
+    root.querySelector('[role="tablist"]')?.addEventListener("keydown", (e) => {
+      const ev = e as KeyboardEvent;
+      const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      const target = {
+        ArrowRight: tabs[(i + 1) % tabs.length],
+        ArrowLeft: tabs[(i - 1 + tabs.length) % tabs.length],
+        Home: tabs[0],
+        End: tabs[tabs.length - 1],
+      }[ev.key];
+      if (!target) return;
+      ev.preventDefault();
+      select(target);
+    });
+
+    tabs.forEach((tab) => tab.addEventListener("click", () => select(tab)));
+  });
+</script>
+
+<style>
+  @layer components {
+    .tabs__list {
+      display: flex;
+      gap: var(--space-6);
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      scrollbar-width: none;
+    }
+
+    .tabs__tab {
+      position: relative;
+      flex-shrink: 0;
+      padding-block: var(--space-3);
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: color var(--dur-fast);
+    }
+
+    .tabs__tab:hover,
+    .tabs__tab[aria-selected="true"] {
+      color: var(--text);
+    }
+
+    /* неоновая черта под активной вкладкой */
+    .tabs__tab::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: var(--radius-pill);
+      background: var(--gradient-accent);
+      box-shadow: 0 0 10px oklch(0.83 0.1 205 / 0.6);
+      scale: 0 1;
+      transition: scale var(--dur) var(--ease-out);
+    }
+
+    .tabs__tab[aria-selected="true"]::after {
+      scale: 1 1;
+    }
+
+    .tabs__tab:focus-visible {
+      outline-offset: -2px;
+    }
+
+    .tabs__panel {
+      padding-block: var(--space-6);
+      color: var(--text-muted);
+    }
+
+    .tabs__panel:focus-visible {
+      outline-offset: var(--space-1);
+    }
+  }
+</style>

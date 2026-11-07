@@ -1,0 +1,120 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import Icon, { type IconName } from "./Icon.astro";
+
+type Props = {
+  icon: IconName;
+  /** подпись для скринридера и подсказка при наведении — обязательна, текста у кнопки нет */
+  label: string;
+  /** кнопка-переключатель (избранное, звук): состояние в aria-pressed */
+  toggle?: boolean;
+  pressed?: boolean;
+  /** «на обложке» — полупрозрачный тёмный фон */
+  overlay?: boolean;
+  size?: "md" | "sm";
+  class?: string;
+} & Omit<HTMLAttributes<"button">, "class">;
+
+const {
+  icon,
+  label,
+  toggle = false,
+  pressed = false,
+  overlay = false,
+  size = "md",
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<button
+  class:list={["icon-btn", `icon-btn--${size}`, { "icon-btn--overlay": overlay }, className]}
+  type="button"
+  aria-label={label}
+  title={label}
+  aria-pressed={toggle ? pressed : undefined}
+  data-icon-toggle={toggle ? "" : undefined}
+  {...rest}
+>
+  <Icon name={icon} size={size === "sm" ? 18 : 20} />
+</button>
+
+<script>
+  // один обработчик на всю страницу: работает и для кнопок, добавленных позже
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>("[data-icon-toggle]");
+    if (!btn) return;
+    btn.setAttribute("aria-pressed", String(btn.getAttribute("aria-pressed") !== "true"));
+  });
+</script>
+
+<style>
+  @layer components {
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-1);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.2);
+      transition:
+        background-color var(--dur-fast),
+        box-shadow var(--dur) var(--ease-out),
+        color var(--dur-fast),
+        transform var(--dur-fast) var(--ease-out);
+    }
+
+    .icon-btn--sm {
+      width: 40px;
+      height: 40px;
+    }
+
+    .icon-btn--overlay {
+      background: oklch(0.145 0.014 285 / 0.6);
+      box-shadow: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .icon-btn:hover {
+      background: var(--surface-2);
+      box-shadow: inset 0 0 0 1px var(--border-strong);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    .icon-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    /* нажатое «избранное» — единственное розовое пятно рядом */
+    .icon-btn[aria-pressed="true"] {
+      background: var(--surface-2);
+      color: var(--hot);
+      box-shadow:
+        inset 0 0 0 1px oklch(0.74 0.14 352 / 0.5),
+        0 0 20px oklch(0.74 0.14 352 / 0.35);
+    }
+
+    .icon-btn[aria-pressed="true"] :global(svg) {
+      fill: currentColor;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .icon-btn[aria-pressed="true"] :global(svg) {
+        animation: pop var(--dur) var(--ease-out);
+      }
+    }
+
+    @keyframes pop {
+      40% {
+        scale: 1.25;
+      }
+    }
+  }
+</style>

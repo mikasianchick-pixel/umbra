@@ -1,0 +1,73 @@
+---
+// Счётчик «игроков онлайн»: число немного «дышит» раз в пару секунд.
+// Данные выдуманные — это демонстрация живого интерфейса, а не настоящая статистика.
+interface Props {
+  start?: number;
+}
+
+const { start = 128402 } = Astro.props;
+const fmt = (n: number) => n.toLocaleString("en-US").replace(/,/g, " ");
+---
+
+<span class="online" data-online={start}>
+  <span class="online__dot" aria-hidden="true"></span>
+  <span class="online__num">{fmt(start)}</span> online
+</span>
+
+<script>
+  const fmt = (n: number) => n.toLocaleString("en-US").replace(/,/g, " ");
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  document.querySelectorAll<HTMLElement>("[data-online]").forEach((el) => {
+    const num = el.querySelector(".online__num");
+    if (!num || calm) return;
+    let value = Number(el.dataset.online);
+    setInterval(() => {
+      if (document.hidden) return;
+      value += Math.round((Math.random() - 0.45) * 40);
+      num.textContent = fmt(value);
+    }, 2400);
+  });
+</script>
+
+<style>
+  @layer components {
+    .online {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0.375rem var(--space-3);
+      border-radius: var(--radius-pill);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px var(--line);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .online__num {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .online__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .online__dot {
+        animation: pulse 2s var(--ease-in-out) infinite;
+      }
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: 0.4;
+      }
+    }
+  }
+</style>

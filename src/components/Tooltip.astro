@@ -1,0 +1,102 @@
+---
+// Тултип: появляется при наведении и при фокусе с клавиатуры, Esc его прячет.
+// Оборачивает один интерактивный элемент (кнопку, ссылку) и связывает их через aria-describedby.
+interface Props {
+  id: string;
+  text: string;
+  /** подсказка клавиши, например «M» */
+  kbd?: string;
+  /** start — прижать к левому краю элемента (если он у края экрана) */
+  align?: "center" | "start";
+}
+
+const { id, text, kbd, align = "center" } = Astro.props;
+---
+
+<span class:list={["tip", `tip--${align}`]} data-tip={id}>
+  <slot />
+  <span class="tip__bubble" role="tooltip" id={id}>
+    {text}
+    {kbd && <kbd>{kbd}</kbd>}
+  </span>
+</span>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tip]").forEach((tip) => {
+    const trigger = tip.querySelector<HTMLElement>("a, button, input, [tabindex]");
+    trigger?.setAttribute("aria-describedby", tip.dataset.tip ?? "");
+
+    // Esc прячет подсказку, пока курсор/фокус не уйдут и не вернутся (WCAG 1.4.13)
+    tip.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") tip.classList.add("is-dismissed");
+    });
+    const reset = () => tip.classList.remove("is-dismissed");
+    tip.addEventListener("pointerleave", reset);
+    tip.addEventListener("focusout", reset);
+  });
+</script>
+
+<style>
+  @layer components {
+    .tip {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .tip__bubble {
+      position: absolute;
+      bottom: calc(100% + var(--space-2));
+      left: 50%;
+      z-index: var(--z-overlay);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      background: var(--surface-3);
+      box-shadow: 0 8px 24px oklch(0 0 0 / 0.4);
+      color: var(--text);
+      font-size: var(--text-sm);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      translate: -50% 4px;
+      transition:
+        opacity var(--dur-fast),
+        translate var(--dur-fast) var(--ease-out);
+    }
+
+    .tip__bubble kbd {
+      padding: 0 0.375rem;
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text-muted);
+      font-size: var(--text-2xs);
+    }
+
+    /* небольшая задержка при наведении, чтобы подсказки не мигали при движении мыши */
+    .tip:hover .tip__bubble {
+      transition-delay: 300ms;
+    }
+
+    .tip:hover .tip__bubble,
+    .tip:has(:focus-visible) .tip__bubble {
+      opacity: 1;
+      translate: -50% 0;
+    }
+
+    .tip.is-dismissed .tip__bubble {
+      opacity: 0;
+    }
+
+    .tip--start .tip__bubble {
+      left: 0;
+      translate: 0 4px;
+    }
+
+    .tip--start:hover .tip__bubble,
+    .tip--start:has(:focus-visible) .tip__bubble {
+      translate: 0 0;
+    }
+  }
+</style>

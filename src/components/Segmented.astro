@@ -1,0 +1,110 @@
+---
+// Сегментный переключатель (Monthly / Yearly) на радиокнопках:
+// стрелки ← → переключают варианты без единой строчки JS.
+interface Option {
+  value: string;
+  label: string;
+  /** маленькая плашка справа, например «-20%» */
+  note?: string;
+}
+
+interface Props {
+  name: string;
+  legend: string;
+  options: Option[];
+  value?: string;
+}
+
+const { name, legend, options, value = options[0]?.value } = Astro.props;
+---
+
+<fieldset class="seg" style={`--count: ${options.length}`}>
+  <legend class="visually-hidden">{legend}</legend>
+  {
+    options.map((o) => (
+      <label class="seg__option">
+        <input type="radio" name={name} value={o.value} checked={o.value === value} />
+        <span>{o.label}</span>
+        {o.note && <span class="seg__note">{o.note}</span>}
+      </label>
+    ))
+  }
+  <span class="seg__thumb" aria-hidden="true"></span>
+</fieldset>
+
+<style>
+  @layer components {
+    .seg {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(var(--count), 1fr);
+      width: min(100%, 18.75rem);
+      padding: var(--space-1);
+      border: 0;
+      border-radius: var(--radius-pill);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.2);
+    }
+
+    .seg__option {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      height: 40px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: color var(--dur) var(--ease-out);
+    }
+
+    .seg__option input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    .seg__option:has(:checked) {
+      color: var(--bg);
+      font-weight: 600;
+    }
+
+    .seg__option:has(:focus-visible) {
+      box-shadow: var(--focus-ring);
+    }
+
+    .seg__note {
+      padding: 2px 0.4375rem;
+      border-radius: var(--radius-pill);
+      background: var(--bg);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      font-weight: 700;
+    }
+
+    /* светящийся «ползунок» едет под выбранный вариант */
+    .seg__thumb {
+      position: absolute;
+      inset-block: var(--space-1);
+      left: var(--space-1);
+      width: calc((100% - var(--space-2)) / var(--count));
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+      box-shadow: 0 0 20px oklch(0.74 0.14 292 / 0.4);
+      transition: translate var(--dur) var(--ease-out);
+    }
+
+    .seg:has(.seg__option:nth-of-type(2) :checked) .seg__thumb {
+      translate: 100% 0;
+    }
+
+    .seg:has(.seg__option:nth-of-type(3) :checked) .seg__thumb {
+      translate: 200% 0;
+    }
+  }
+</style>

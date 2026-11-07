@@ -62,7 +62,8 @@
     border-radius: var(--radius-sm);
   }
 
-  a:not([class]) {
+  /* подчёркиваем только ссылки внутри текста — навигация и карточки оформляются сами */
+  :is(p, dd, figcaption) a:not([class]) {
     color: var(--accent);
     text-decoration: underline;
     text-decoration-color: oklch(0.74 0.14 292 / 0.4);
@@ -70,7 +71,7 @@
     transition: text-decoration-color var(--dur-fast);
   }
 
-  a:not([class]):hover {
+  :is(p, dd, figcaption) a:not([class]):hover {
     text-decoration-color: currentColor;
   }
 

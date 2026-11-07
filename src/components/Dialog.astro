@@ -1,0 +1,136 @@
+---
+// Модалка на нативном <dialog>: браузер сам держит фокус внутри, закрывает по Esc
+// и возвращает фокус на кнопку, которая её открыла.
+// Открыть: любая кнопка с data-dialog-open="<id>".
+import IconButton from "./IconButton.astro";
+
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<dialog class="dialog" id={id} aria-labelledby={`${id}-title`}>
+  <div class="dialog__head">
+    <h2 class="dialog__title" id={`${id}-title`}>{title}</h2>
+    <form method="dialog">
+      <IconButton icon="x" label="Close" size="sm" type="submit" />
+    </form>
+  </div>
+  <div class="dialog__body">
+    <slot />
+  </div>
+  {
+    Astro.slots.has("actions") && (
+      <form class="dialog__actions" method="dialog">
+        <slot name="actions" />
+      </form>
+    )
+  }
+</dialog>
+
+<script>
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+
+    const opener = target.closest<HTMLElement>("[data-dialog-open]");
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.dialogOpen ?? "");
+      if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      return;
+    }
+
+    // клик по затемнению вокруг окна закрывает модалку
+    if (target instanceof HTMLDialogElement && target.open) {
+      const r = target.getBoundingClientRect();
+      const ev = e as MouseEvent;
+      const inside =
+        ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+      if (!inside) target.close();
+    }
+  });
+</script>
+
+<style>
+  @layer components {
+    .dialog {
+      width: min(100% - var(--space-8), 32rem);
+      max-height: min(100% - var(--space-8), 40rem);
+      margin: auto;
+      padding: 0;
+      border: 0;
+      border-radius: var(--radius-lg);
+      background: var(--surface-2);
+      color: var(--text);
+      box-shadow:
+        inset 0 0 0 1px oklch(0.74 0.14 292 / 0.25),
+        0 0 60px oklch(0 0 0 / 0.6),
+        0 0 60px oklch(0.74 0.14 292 / 0.15);
+    }
+
+    .dialog::backdrop {
+      background: oklch(0.145 0.014 285 / 0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    .dialog__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dialog__title {
+      font-size: var(--text-xl);
+    }
+
+    .dialog__body {
+      padding: var(--space-6);
+      color: var(--text-muted);
+    }
+
+    .dialog__actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      padding: 0 var(--space-6) var(--space-6);
+    }
+
+    /* появление: окно всплывает, фон темнеет. @starting-style — начальная точка анимации */
+    @media (prefers-reduced-motion: no-preference) {
+      .dialog,
+      .dialog::backdrop {
+        transition:
+          opacity var(--dur) var(--ease-out),
+          translate var(--dur) var(--ease-out),
+          overlay var(--dur) allow-discrete,
+          display var(--dur) allow-discrete;
+      }
+
+      .dialog:not([open]),
+      .dialog:not([open])::backdrop {
+        opacity: 0;
+      }
+
+      .dialog:not([open]) {
+        translate: 0 16px;
+      }
+
+      @starting-style {
+        .dialog[open],
+        .dialog[open]::backdrop {
+          opacity: 0;
+        }
+
+        .dialog[open] {
+          translate: 0 16px;
+        }
+      }
+    }
+  }
+</style>

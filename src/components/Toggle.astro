@@ -1,0 +1,130 @@
+---
+// Тумблер (switch) и чекбокс — оба на настоящем <input type="checkbox">,
+// поэтому работают без JS: Tab — фокус, Пробел — переключить.
+import type { HTMLAttributes } from "astro/types";
+import Icon from "./Icon.astro";
+
+type Props = {
+  kind?: "switch" | "checkbox";
+} & HTMLAttributes<"input">;
+
+const { kind = "switch", ...rest } = Astro.props;
+---
+
+<label class:list={["toggle", `toggle--${kind}`]}>
+  <input
+    class="toggle__input"
+    type="checkbox"
+    role={kind === "switch" ? "switch" : undefined}
+    {...rest}
+  />
+  <span class="toggle__ui" aria-hidden="true">
+    {kind === "checkbox" && <Icon name="check" size={16} />}
+  </span>
+  <span class="toggle__text"><slot /></span>
+</label>
+
+<style>
+  @layer components {
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+      font-size: var(--text-base);
+    }
+
+    /* сам input невидим, но остаётся в потоке фокуса */
+    .toggle__input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+
+    .toggle__ui {
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition:
+        background-color var(--dur) var(--ease-out),
+        box-shadow var(--dur) var(--ease-out);
+    }
+
+    .toggle__input:focus-visible + .toggle__ui {
+      box-shadow: var(--focus-ring);
+    }
+
+    .toggle__input:disabled ~ * {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ---------- switch ---------- */
+    .toggle--switch .toggle__ui {
+      width: 48px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-3);
+    }
+
+    .toggle--switch .toggle__ui::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition:
+        translate var(--dur) var(--ease-out),
+        background-color var(--dur);
+    }
+
+    .toggle--switch .toggle__input:checked + .toggle__ui {
+      background: var(--accent);
+      box-shadow: 0 0 16px oklch(0.74 0.14 292 / 0.4);
+    }
+
+    .toggle--switch .toggle__input:checked + .toggle__ui::before {
+      translate: 20px 0;
+      background: var(--bg);
+    }
+
+    .toggle--switch .toggle__input:checked:focus-visible + .toggle__ui {
+      box-shadow:
+        0 0 16px oklch(0.74 0.14 292 / 0.4),
+        var(--focus-ring);
+    }
+
+    /* ---------- checkbox ---------- */
+    .toggle--checkbox .toggle__ui {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.4);
+      color: var(--bg);
+    }
+
+    .toggle--checkbox .toggle__ui :global(svg) {
+      opacity: 0;
+      scale: 0.5;
+      transition:
+        opacity var(--dur-fast),
+        scale var(--dur) var(--ease-out);
+    }
+
+    .toggle--checkbox .toggle__input:checked + .toggle__ui {
+      background: var(--accent);
+      box-shadow: none;
+    }
+
+    .toggle--checkbox .toggle__input:checked + .toggle__ui :global(svg) {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+</style>

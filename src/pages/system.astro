@@ -1,6 +1,19 @@
 ---
 import Base from "@/layouts/Base.astro";
 import Button from "@/components/Button.astro";
+import IconButton from "@/components/IconButton.astro";
+import Field from "@/components/Field.astro";
+import Toggle from "@/components/Toggle.astro";
+import Segmented from "@/components/Segmented.astro";
+import Tag from "@/components/Tag.astro";
+import Badge from "@/components/Badge.astro";
+import Rating from "@/components/Rating.astro";
+import OnlineCounter from "@/components/OnlineCounter.astro";
+import GameCard from "@/components/GameCard.astro";
+import Tabs from "@/components/Tabs.astro";
+import Dialog from "@/components/Dialog.astro";
+import Tooltip from "@/components/Tooltip.astro";
+import { games } from "@/data/games";
 import {
   baseColors,
   accentColors,
@@ -174,6 +187,162 @@ import {
       </Button>
       <Button disabled>Disabled</Button>
     </div>
+    <div class="buttons buttons--icons">
+      <Tooltip id="tip-sound" text="Toggle ambient sound" kbd="M" align="start">
+        <IconButton icon="volume" label="Ambient sound" toggle />
+      </Tooltip>
+      <IconButton icon="heart" label="Add to wishlist" toggle />
+      <IconButton icon="heart" label="Remove from wishlist" toggle pressed />
+      <IconButton icon="search" label="Search" />
+    </div>
+  </section>
+
+  <!-- 06 INPUTS & CONTROLS -->
+  <section class="block container" aria-labelledby="inputs">
+    <header class="block__head">
+      <p class="eyebrow">06</p>
+      <h2 id="inputs">Inputs &amp; controls</h2>
+      <p class="muted">
+        Real form elements under the neon: Tab to focus, Space to toggle, arrows to switch.
+      </p>
+    </header>
+    <div class="fields">
+      <Field
+        id="demo-search"
+        label="Default"
+        type="search"
+        icon="search"
+        kbd="Ctrl K"
+        placeholder="Search games, genres, studios…"
+      />
+      <Field
+        id="demo-focus"
+        label="With value"
+        type="search"
+        icon="search"
+        value="neon dri"
+      />
+      <Field
+        id="demo-email"
+        label="Error"
+        type="email"
+        value="user@umbra"
+        error="Please enter a valid email address"
+      />
+    </div>
+    <div class="controls">
+      <Toggle checked>Cloud saves</Toggle>
+      <Toggle>Ambient sound</Toggle>
+      <Toggle kind="checkbox" checked>Controller support</Toggle>
+      <Toggle kind="checkbox">Co-op</Toggle>
+      <Segmented
+        name="billing"
+        legend="Billing period"
+        value="yearly"
+        options={[
+          { value: "monthly", label: "Monthly" },
+          { value: "yearly", label: "Yearly", note: "-20%" },
+        ]}
+      />
+    </div>
+  </section>
+
+  <!-- 07 TAGS & BADGES -->
+  <section class="block container" aria-labelledby="tags">
+    <header class="block__head">
+      <p class="eyebrow">07</p>
+      <h2 id="tags">Tags &amp; badges</h2>
+      <p class="muted">
+        Mono tags for genres, badges for price drops and new releases, a live counter of players
+        online.
+      </p>
+    </header>
+    <ul class="row" role="list">
+      {
+        ["Roguelike", "Synthwave", "Co-op", "Pixel", "Stealth", "Open world"].map((t) => (
+          <li>
+            <Tag href="/games">{t}</Tag>
+          </li>
+        ))
+      }
+      <li><Tag href="/games" selected>Roguelike</Tag></li>
+    </ul>
+    <div class="row">
+      <Badge kind="sale">-40%</Badge>
+      <Badge kind="new">New</Badge>
+      <Badge kind="early">Early access</Badge>
+      <OnlineCounter />
+      <Rating value={4.8} count="2.1k" pill />
+    </div>
+  </section>
+
+  <!-- 08 GAME CARD -->
+  <section class="block container" aria-labelledby="cards">
+    <header class="block__head">
+      <p class="eyebrow">08</p>
+      <h2 id="cards">Game card</h2>
+      <p class="muted">
+        Cover art is procedural (gradients and light), so every fictional game gets its own look
+        with zero image licensing. Hover to lift, Tab to focus, the heart saves to wishlist.
+      </p>
+    </header>
+    <ul class="cards" role="list">
+      {
+        games.slice(0, 3).map((g) => (
+          <li>
+            <GameCard game={g} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- 09 TABS, DIALOG, TOAST -->
+  <section class="block container" aria-labelledby="overlays">
+    <header class="block__head">
+      <p class="eyebrow">09</p>
+      <h2 id="overlays">Tabs &amp; overlays</h2>
+      <p class="muted">
+        Arrow keys move between tabs. The dialog is a native &lt;dialog&gt;: focus stays inside,
+        Esc closes it. Toasts are announced by screen readers.
+      </p>
+    </header>
+
+    <Tabs
+      id="demo"
+      label="Game info"
+      tabs={[
+        { id: "about", label: "About" },
+        { id: "achievements", label: "Achievements" },
+        { id: "reviews", label: "Reviews" },
+        { id: "specs", label: "System specs" },
+      ]}
+    >
+      <p slot="about">
+        A lonely radio tower, a signal from nowhere and one night to find out who is calling.
+      </p>
+      <p slot="achievements">42 achievements · 3 hidden · 12% of players found them all.</p>
+      <p slot="reviews">Very positive · 4.8 out of 5 from 2 100 players.</p>
+      <p slot="specs">Any GPU from the last decade. Runs on a potato, glows like a reactor.</p>
+    </Tabs>
+
+    <div class="buttons">
+      <Button variant="ghost" data-dialog-open="demo-dialog">Open dialog</Button>
+      <Button variant="ghost" data-toast="Added to wishlist" data-toast-action="Undo">
+        Show toast
+      </Button>
+    </div>
+
+    <Dialog id="demo-dialog" title="Start free trial?">
+      <p>
+        Umbra Pass is free for 14 days. Cancel any time — your saves and achievements stay with
+        you.
+      </p>
+      <Fragment slot="actions">
+        <Button variant="ghost" type="submit" value="cancel">Not now</Button>
+        <Button type="submit" value="ok" icon="bolt">Start trial</Button>
+      </Fragment>
+    </Dialog>
   </section>
 </Base>
 
@@ -393,5 +562,58 @@ import {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-6);
+  }
+
+  .buttons--icons {
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  /* ---------- поля и переключатели ---------- */
+  .fields {
+    display: grid;
+    gap: var(--space-6);
+    margin-bottom: var(--space-10);
+  }
+
+  .controls,
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-8);
+  }
+
+  .row {
+    gap: var(--space-3);
+  }
+
+  .row + .row {
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 48rem) {
+    .fields {
+      grid-template-columns: repeat(3, 1fr);
+      align-items: start;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .controls > :global(.seg) {
+      margin-left: auto;
+    }
+  }
+
+  /* ---------- карточки ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-8);
+  }
+
+  /* ---------- вкладки и окна ---------- */
+  :global(.tabs) {
+    margin-bottom: var(--space-8);
   }
 </style>

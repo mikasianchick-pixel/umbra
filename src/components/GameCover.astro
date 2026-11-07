@@ -1,0 +1,76 @@
+---
+// Процедурная обложка: градиент + размытый шар света + линия горизонта + название.
+// Ни одной картинки — у каждой выдуманной игры свой вид из двух цветов.
+import type { Game } from "@/data/games";
+
+interface Props {
+  game: Game;
+  class?: string;
+}
+
+const { game, class: className } = Astro.props;
+---
+
+<div
+  class:list={["cover", className]}
+  style={`--cover-a: ${game.cover.a}; --cover-b: ${game.cover.b}`}
+  aria-hidden="true"
+>
+  <span class="cover__orb"></span>
+  <span class="cover__title">{game.coverTitle}</span>
+</div>
+
+<style>
+  @layer components {
+    .cover {
+      position: relative;
+      overflow: hidden;
+      container-type: inline-size;
+      aspect-ratio: 3 / 2;
+      background: linear-gradient(
+        150deg,
+        color-mix(in oklch, var(--cover-a) 90%, transparent),
+        color-mix(in oklch, var(--cover-b) 55%, var(--bg)) 60%,
+        var(--bg)
+      );
+    }
+
+    .cover__orb {
+      position: absolute;
+      top: 10%;
+      left: 55%;
+      width: 47cqi;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--cover-b);
+      filter: blur(28px);
+      opacity: 0.9;
+      transition: translate var(--dur-slow) var(--ease-out);
+    }
+
+    /* горизонт */
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      top: 72%;
+      height: 1px;
+      background: oklch(0.94 0.008 285 / 0.25);
+    }
+
+    .cover__title {
+      position: absolute;
+      left: 5.5cqi;
+      bottom: 5.5cqi;
+      z-index: 1;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(var(--text-xl), 7.2cqi, var(--text-4xl));
+      line-height: var(--leading-tight);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: pre-line;
+      text-shadow: 0 0 18px color-mix(in oklch, var(--cover-b) 60%, transparent);
+    }
+  }
+</style>
