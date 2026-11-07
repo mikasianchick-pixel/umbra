@@ -27,7 +27,8 @@ const isActive = (href: string) =>
     </nav>
 
     <div class="header__actions">
-      <a class="header__search" href="/games">
+      <!-- без JS — ссылка в каталог, с JS — открывает командную палитру -->
+      <a class="header__search" href="/games" data-palette-open aria-keyshortcuts="Control+K">
         <Icon name="search" size={18} />
         <span class="header__search-text">Search games…</span>
         <kbd>Ctrl K</kbd>

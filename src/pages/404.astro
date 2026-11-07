@@ -1,0 +1,241 @@
+---
+import Base from "@/layouts/Base.astro";
+import Button from "@/components/Button.astro";
+---
+
+<Base title="Game over" description="404 — this page fell out of the signal. Play Static Rain while you are here.">
+  <section class="lost container" aria-labelledby="lost-title">
+    <div class="lost__text">
+      <p class="eyebrow">Error 404 · signal lost</p>
+      <h1 id="lost-title" class="lost__title glitch" data-text="Game over">Game over</h1>
+      <p class="lead">
+        This page fell out of the signal. While you are here — catch the cyan sparks, dodge the pink
+        static and beat your best score.
+      </p>
+      <div class="lost__links">
+        <Button href="/" icon="arrowL">Back home</Button>
+        <Button href="/games" variant="ghost" icon="pad">Browse games</Button>
+      </div>
+    </div>
+
+    <div class="arcade" data-game>
+      <div class="arcade__hud" aria-hidden="true">
+        <span>Score <b data-hud="score">0</b></span>
+        <span class="arcade__lives" data-hud="lives">♥♥♥</span>
+        <span>Best <b data-hud="best">0</b></span>
+      </div>
+
+      <div class="arcade__screen">
+        <canvas
+          class="arcade__canvas"
+          tabindex="0"
+          aria-label="Static Rain mini game. Use left and right arrow keys or A and D to move. Space to start or pause."
+          aria-describedby="arcade-help"
+        ></canvas>
+
+        <div class="arcade__overlay" data-overlay>
+          <p class="arcade__name">Static Rain</p>
+          <p class="arcade__msg" data-msg>Catch sparks · dodge static</p>
+          <button class="btn btn--primary btn--md" type="button" data-start>
+            <span data-start-label>Start</span>
+          </button>
+        </div>
+      </div>
+
+      <p class="arcade__help" id="arcade-help">
+        <span><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> move</span>
+        <span><kbd>P</kbd> pause</span>
+        <span>On touch: drag your finger</span>
+      </p>
+
+      <!-- итог партии зачитывается скринридером -->
+      <p class="visually-hidden" aria-live="polite" data-announce></p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { StaticRain, type Hud } from "@/game/static-rain";
+
+  const root = document.querySelector<HTMLElement>("[data-game]");
+  const canvas = root?.querySelector<HTMLCanvasElement>("canvas");
+
+  if (root && canvas) {
+    const $ = (sel: string) => root.querySelector<HTMLElement>(sel);
+    const score = $("[data-hud='score']");
+    const best = $("[data-hud='best']");
+    const lives = $("[data-hud='lives']");
+    const overlay = $("[data-overlay]");
+    const msg = $("[data-msg]");
+    const label = $("[data-start-label]");
+    const announce = $("[data-announce]");
+    let lastState = "";
+
+    const onHud = (hud: Hud) => {
+      if (score) score.textContent = String(hud.score);
+      if (best) best.textContent = String(hud.best);
+      if (lives) lives.textContent = "♥".repeat(Math.max(hud.lives, 0)) + "♡".repeat(3 - Math.max(hud.lives, 0));
+      if (hud.state === lastState) return;
+      lastState = hud.state;
+
+      overlay?.toggleAttribute("hidden", hud.state === "playing");
+      if (hud.state === "paused") {
+        if (msg) msg.textContent = "Paused";
+        if (label) label.textContent = "Resume";
+      }
+      if (hud.state === "over") {
+        const text = `Signal lost. Score ${hud.score}. Best ${hud.best}.`;
+        if (msg) msg.textContent = text;
+        if (label) label.textContent = "Play again";
+        if (announce) announce.textContent = text;
+      }
+      if (hud.state === "playing") canvas.focus({ preventScroll: true });
+    };
+
+    try {
+      const game = new StaticRain(canvas, onHud);
+      $("[data-start]")?.addEventListener("click", () => game.toggle());
+      addEventListener("pagehide", () => game.dispose(), { once: true });
+    } catch {
+      if (msg) msg.textContent = "Your browser can't run the game, but the links above still work.";
+      $("[data-start]")?.setAttribute("hidden", "");
+    }
+  }
+</script>
+
+<style>
+  .lost {
+    display: grid;
+    gap: var(--space-12);
+    align-items: center;
+    padding-block: var(--space-12) var(--space-16);
+  }
+
+  .lost__text {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+
+  .lost__title {
+    font-size: var(--text-display);
+    text-shadow: var(--glow-text);
+  }
+
+  .lost__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+  }
+
+  /* ---------- игровой автомат ---------- */
+  .arcade {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    background: var(--surface-1);
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      0 0 60px oklch(0.74 0.14 292 / 0.2);
+  }
+
+  .arcade__hud {
+    display: flex;
+    justify-content: space-between;
+    padding-inline: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .arcade__hud b {
+    margin-left: var(--space-2);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .arcade__lives {
+    color: var(--hot);
+    letter-spacing: 0.2em;
+  }
+
+  .arcade__screen {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-height: 70svh;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(30rem 20rem at 50% 0%, oklch(0.74 0.14 292 / 0.15), transparent 70%),
+      var(--bg);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .arcade__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* палец двигает огонёк, а не страницу */
+    touch-action: none;
+    border-radius: inherit;
+  }
+
+  .arcade__canvas:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .arcade__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    text-align: center;
+    background: oklch(0.145 0.014 285 / 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .arcade__overlay[hidden] {
+    display: none;
+  }
+
+  .arcade__name {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: var(--glow-text);
+  }
+
+  .arcade__msg {
+    color: var(--text-muted);
+  }
+
+  .arcade__help {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .arcade__help kbd {
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface-3);
+    font-size: var(--text-2xs);
+  }
+
+  @media (min-width: 64rem) {
+    .lost {
+      grid-template-columns: 1fr 26rem;
+      gap: var(--space-16);
+      min-height: calc(100svh - var(--header-h) - var(--header-top) * 2);
+    }
+  }
+</style>

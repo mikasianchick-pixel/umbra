@@ -3,11 +3,15 @@ import { Font } from "astro:assets";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Toaster from "@/components/Toaster.astro";
+import CommandPalette from "@/islands/CommandPalette";
+import { games } from "@/data/games";
+import { mainNav } from "@/data/nav";
 import "@/styles/tokens.css";
 import "@/styles/reset.css";
 import "@/styles/base.css";
 import "@/styles/utilities.css";
 import "@/styles/ui.css";
+import "@/styles/palette.css";
 
 interface Props {
   title: string;
@@ -36,6 +40,14 @@ const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
     <script is:inline define:vars={{ intro }}>
       const root = document.documentElement;
       root.classList.add("js");
+      // пасхалки командной палитры (/neon, /retro, /calm) — до первой отрисовки, чтобы не мигало
+      try {
+        JSON.parse(localStorage.getItem("umbra-fx") || "[]").forEach((fx) =>
+          root.classList.add("fx-" + fx),
+        );
+      } catch {
+        /* хранилище недоступно — без пасхалок */
+      }
       if (intro) {
         root.classList.add("intro-pending");
         let seen = false;
@@ -67,6 +79,17 @@ const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
     </main>
     <Footer />
     <Toaster />
+    <!-- палитре нужны только названия: передаём лёгкий список, а не все данные игр -->
+    <CommandPalette
+      client:idle
+      games={games.map((g) => ({
+        slug: g.slug,
+        name: g.name,
+        genre: g.tags[0] ?? "",
+        price: g.price === 0 ? "Free" : `$${g.price.toFixed(2)}`,
+      }))}
+      pages={[{ label: "Home", href: "/" }, ...mainNav]}
+    />
     <script>
       import "@/scripts/smooth-scroll";
       import { initWishlistButtons } from "@/scripts/wishlist";

@@ -55,7 +55,10 @@ export function toast(message: string, { action, onAction, duration = 4000 }: To
   function remove() {
     stop();
     el.classList.add("is-leaving");
-    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // без анимации (системная настройка или пасхалка /calm) событие animationend не придёт
+    const calm =
+      matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.classList.contains("fx-calm");
     if (calm) el.remove();
     else el.addEventListener("animationend", () => el.remove(), { once: true });
   }
