@@ -1,0 +1,444 @@
+---
+import Base from "@/layouts/Base.astro";
+import Catalog from "@/islands/Catalog";
+import { games } from "@/data/games";
+---
+
+<Base
+  title="Store"
+  description="Browse fictional indie games on Umbra: search, filter by genre, price and rating, save favourites."
+>
+  <header class="catalog-head container">
+    <p class="eyebrow">Store / All games</p>
+    <h1 class="catalog-head__title">Find your night</h1>
+    <p class="muted">{games.length} handpicked indie games · updated every Friday</p>
+  </header>
+
+  <div class="container">
+    <!-- каталог нужен сразу, поэтому client:load -->
+    <Catalog client:load />
+  </div>
+</Base>
+
+<!-- разметку каталога рисует React, поэтому стили глобальные (префиксы catalog / filters) -->
+<style is:global>
+  @layer components {
+    .catalog-head {
+      display: grid;
+      gap: var(--space-3);
+      padding-block: var(--space-12) var(--space-8);
+    }
+
+    .catalog-head__title {
+      font-size: var(--text-5xl);
+      text-shadow: var(--glow-text);
+    }
+
+    /* ---------- строка поиска ---------- */
+    .catalog__bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-3);
+    }
+
+    .catalog__search {
+      grid-column: 1 / -1;
+    }
+
+    /* элементы сетки не должны распирать её своим содержимым */
+    .catalog__bar > *,
+    .catalog__layout > * {
+      min-width: 0;
+    }
+
+    .catalog__search .field__box {
+      height: 60px;
+      border-radius: var(--radius-lg);
+    }
+
+    .catalog__search .field__box:has(input:not(:placeholder-shown)) {
+      box-shadow:
+        inset 0 0 0 1px var(--accent-2),
+        0 0 16px oklch(0.83 0.1 205 / 0.2);
+      color: var(--accent-2);
+    }
+
+    .catalog__search .field__kbd {
+      white-space: nowrap;
+    }
+
+    .catalog__sort {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding-inline: var(--space-4);
+      height: 48px;
+      border-radius: var(--radius-lg);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.2);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+    }
+
+    .catalog__sort select {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font-weight: 500;
+      padding-right: var(--space-6);
+      cursor: pointer;
+      /* стрелка вниз */
+      background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+        linear-gradient(-45deg, transparent 50%, var(--text-muted) 50%);
+      background-size: 5px 5px;
+      background-position:
+        right 7px center,
+        right 2px center;
+      background-repeat: no-repeat;
+    }
+
+    .catalog__sort select:focus-visible {
+      outline-offset: var(--space-2);
+    }
+
+    .catalog__sort option {
+      background: var(--surface-2);
+    }
+
+    .catalog__view {
+      display: none;
+    }
+
+    .catalog__view button {
+      padding: 0 var(--space-4);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition:
+        background-color var(--dur-fast),
+        color var(--dur-fast);
+    }
+
+    .catalog__view button[aria-pressed="true"] {
+      background: var(--surface-3);
+      color: var(--text);
+    }
+
+    .catalog__filters-btn {
+      height: 48px;
+    }
+
+    /* ---------- чипы ---------- */
+    .catalog__chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-5);
+    }
+
+    .tag--chip {
+      gap: var(--space-2);
+      background: var(--surface-2);
+      color: var(--accent);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.5);
+    }
+
+    .catalog__clear {
+      padding: var(--space-1) var(--space-2);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .catalog__clear:hover {
+      color: var(--text);
+    }
+
+    /* ---------- раскладка ---------- */
+    .catalog__layout {
+      display: grid;
+      gap: var(--space-8);
+      margin-top: var(--space-6);
+    }
+
+    /* ---------- панель фильтров ---------- */
+    .filters {
+      display: none;
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+
+    .filters.is-open {
+      display: block;
+    }
+
+    .filters__title {
+      margin-bottom: var(--space-6);
+      font-size: var(--text-base);
+      letter-spacing: 0.12em;
+    }
+
+    .filters__group {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0 0 var(--space-6);
+      border: 0;
+    }
+
+    .filters__group + .filters__group {
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--line);
+    }
+
+    .filters__group legend {
+      float: left;
+      width: 100%;
+      margin-bottom: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      letter-spacing: var(--tracking-mono);
+      text-transform: uppercase;
+      color: var(--accent-2);
+    }
+
+    .filters__row {
+      display: flex;
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+
+    .filters__row:has(:checked) {
+      color: var(--text);
+    }
+
+    .filters__count {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .filters__row--switch {
+      justify-content: space-between;
+    }
+
+    .filters__row--switch .toggle__ui {
+      order: 2;
+    }
+
+    /* ползунок цены */
+    .filters__range input {
+      width: 100%;
+      height: 20px;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .filters__range input::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--accent), var(--accent-2)) 0 / var(--p) 100% no-repeat,
+        var(--surface-3);
+    }
+
+    .filters__range input::-moz-range-track {
+      height: 4px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-3);
+    }
+
+    .filters__range input::-moz-range-progress {
+      height: 4px;
+      border-radius: var(--radius-pill);
+      background: var(--gradient-accent);
+    }
+
+    .filters__range input::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      margin-top: -8px;
+      border-radius: 50%;
+      background: var(--text);
+      box-shadow: 0 0 12px oklch(0.74 0.14 292 / 0.6);
+    }
+
+    .filters__range input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--text);
+      box-shadow: 0 0 12px oklch(0.74 0.14 292 / 0.6);
+    }
+
+    .filters__range input:focus-visible {
+      outline-offset: var(--space-1);
+    }
+
+    .filters__range-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .filters__range-meta b {
+      color: var(--text);
+    }
+
+    /* рейтинг: таблетки-радиокнопки */
+    .filters__pills {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .filters__pill {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .filters__pill input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .filters__pill span {
+      display: block;
+      padding: 0.375rem var(--space-4);
+      border-radius: var(--radius-pill);
+      background: var(--surface-2);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      transition:
+        background-color var(--dur-fast),
+        color var(--dur-fast);
+    }
+
+    .filters__pill:has(:checked) span {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      box-shadow: 0 0 16px oklch(0.74 0.14 292 / 0.4);
+    }
+
+    .filters__pill:has(:focus-visible) span {
+      outline: 2px solid var(--accent-2);
+      outline-offset: 3px;
+    }
+
+    /* ---------- сетка карточек ---------- */
+    .catalog__grid {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .catalog__grid--grid {
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    }
+
+    .catalog__grid--list {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    .catalog__more {
+      display: grid;
+      justify-items: center;
+      gap: var(--space-4);
+      margin-top: var(--space-12);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .catalog__empty {
+      display: grid;
+      justify-items: center;
+      gap: var(--space-4);
+      padding: var(--space-16) var(--space-6);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      color: var(--text-muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+
+    .catalog__empty-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    @media (min-width: 48rem) {
+      .catalog__bar {
+        grid-template-columns: 1fr auto auto;
+      }
+
+      .catalog__search {
+        grid-column: auto;
+      }
+
+      .catalog__sort,
+      .catalog__filters-btn {
+        height: 60px;
+      }
+
+      .catalog__view {
+        display: flex;
+        padding: var(--space-1);
+        border-radius: var(--radius-lg);
+        background: var(--surface-1);
+        box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.2);
+      }
+
+      .catalog__filters-btn {
+        grid-column: 1 / -1;
+        justify-self: start;
+        height: 48px;
+      }
+    }
+
+    @media (min-width: 64rem) {
+      .catalog__bar {
+        grid-template-columns: 1fr 16rem auto;
+      }
+
+      .catalog__filters-btn {
+        display: none;
+      }
+
+      .catalog__layout {
+        grid-template-columns: 17.5rem 1fr;
+        align-items: start;
+      }
+
+      .filters {
+        display: block;
+      }
+
+      .catalog__grid--grid {
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+      }
+    }
+  }
+</style>

@@ -1,0 +1,610 @@
+/*
+  Общие стили мелких UI-элементов: кнопка-иконка, тег, бейдж, рейтинг, обложка, карточка игры.
+  Лежат отдельным файлом, потому что одну и ту же разметку рисуют и Astro-компоненты,
+  и React-островок каталога. Подключается один раз в Base.astro.
+*/
+@layer components {
+  /* ---------- кнопка-иконка ---------- */
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-1);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.2);
+    transition:
+      background-color var(--dur-fast),
+      box-shadow var(--dur) var(--ease-out),
+      color var(--dur-fast),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .icon-btn--sm {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-btn--overlay {
+    background: oklch(0.145 0.014 285 / 0.6);
+    box-shadow: none;
+    backdrop-filter: blur(8px);
+  }
+
+  .icon-btn:hover {
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  .icon-btn:active {
+    transform: scale(0.94);
+  }
+
+  .icon-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* нажатое «избранное» — розовое пятно */
+  .icon-btn[aria-pressed="true"] {
+    background: var(--surface-2);
+    color: var(--hot);
+    box-shadow:
+      inset 0 0 0 1px oklch(0.74 0.14 352 / 0.5),
+      0 0 20px oklch(0.74 0.14 352 / 0.35);
+  }
+
+  .icon-btn[aria-pressed="true"] svg {
+    fill: currentColor;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .icon-btn[aria-pressed="true"] svg {
+      animation: pop var(--dur) var(--ease-out);
+    }
+  }
+
+  @keyframes pop {
+    40% {
+      scale: 1.25;
+    }
+  }
+
+  /* ---------- тег жанра ---------- */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.4375rem 0.875rem; /* 7 / 14 — как в макете */
+    border-radius: var(--radius-pill);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .tag--sm {
+    padding: var(--space-1) 0.625rem;
+    background: var(--surface-2);
+    box-shadow: none;
+    font-size: var(--text-2xs);
+  }
+
+  a.tag,
+  button.tag {
+    transition:
+      color var(--dur-fast),
+      box-shadow var(--dur-fast);
+  }
+
+  a.tag:hover,
+  button.tag:hover {
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  .tag--selected {
+    background: var(--surface-2);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .tag--selected::after {
+    content: "✓";
+  }
+
+  /* ---------- бейдж ---------- */
+  .badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .badge--new {
+    background: var(--accent-2);
+  }
+
+  .badge--sale {
+    background: var(--hot);
+  }
+
+  .badge--early {
+    background: var(--surface-2);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  /* ---------- рейтинг ---------- */
+  .rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.2;
+  }
+
+  .rating svg {
+    color: var(--accent-2);
+  }
+
+  .rating--pill {
+    padding: 0.375rem var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .rating__count {
+    color: var(--text-muted);
+  }
+
+  /* ---------- процедурная обложка ---------- */
+  .cover {
+    position: relative;
+    overflow: hidden;
+    container-type: inline-size;
+    aspect-ratio: 3 / 2;
+    background: linear-gradient(
+      150deg,
+      color-mix(in oklch, var(--cover-a) 90%, transparent),
+      color-mix(in oklch, var(--cover-b) 55%, var(--bg)) 60%,
+      var(--bg)
+    );
+  }
+
+  .cover__orb {
+    position: absolute;
+    top: 10%;
+    left: 55%;
+    width: 47cqi;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cover-b);
+    filter: blur(28px);
+    opacity: 0.9;
+    transition: translate var(--dur-slow) var(--ease-out);
+  }
+
+  /* горизонт */
+  .cover::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 72%;
+    height: 1px;
+    background: oklch(0.94 0.008 285 / 0.25);
+  }
+
+  .cover__title {
+    position: absolute;
+    left: 5.5cqi;
+    bottom: 5.5cqi;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(var(--text-xl), 7.2cqi, var(--text-4xl));
+    line-height: var(--leading-tight);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: pre-line;
+    text-shadow: 0 0 18px color-mix(in oklch, var(--cover-b) 60%, transparent);
+  }
+
+  /* ---------- карточка игры ---------- */
+  .game-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+    /* наклон за курсором: углы ставит scripts/tilt.ts */
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition:
+      translate var(--dur) var(--ease-out),
+      transform var(--dur-slow) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  /* пока курсор на карточке — наклон следует мгновенно, без «резины» */
+  .game-card.is-tilting {
+    transition:
+      translate var(--dur) var(--ease-out),
+      transform 80ms linear,
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  /* блик под курсором */
+  .game-card__glare {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      circle at var(--gx, 50%) var(--gy, 50%),
+      oklch(1 0 0 / 0.18),
+      transparent 45%
+    );
+    mix-blend-mode: overlay;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .game-card.is-tilting .game-card__glare {
+    opacity: 1;
+  }
+
+  /* рамка поверх обложки, чтобы свет рамки не прятался под картинкой */
+  .game-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--border);
+    pointer-events: none;
+    transition: box-shadow var(--dur) var(--ease-out);
+  }
+
+  .game-card:hover {
+    translate: 0 -8px;
+    box-shadow: 0 0 48px color-mix(in oklch, var(--card-glow) 35%, transparent);
+  }
+
+  .game-card:hover::after {
+    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--card-glow) 50%, transparent);
+  }
+
+  .game-card:hover .cover__orb {
+    translate: -8% 6%;
+  }
+
+  /* фокус на ссылке подсвечивает всю карточку */
+  .game-card:has(.game-card__name a:focus-visible)::after {
+    box-shadow:
+      inset 0 0 0 3px var(--accent-2),
+      inset 0 0 0 5px var(--bg);
+  }
+
+  .game-card__badge {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-4);
+    z-index: 1;
+  }
+
+  .game-card__wish {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 3;
+  }
+
+  .game-card__body {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: var(--space-2);
+    padding: var(--space-5);
+  }
+
+  .game-card__studio {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .game-card__name {
+    font-family: var(--font-body);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* растянутая ссылка: кликается вся карточка */
+  .game-card__name a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .game-card__name a:focus-visible {
+    outline: none;
+  }
+
+  .game-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+
+  .game-card__foot {
+    display: flex;
+    align-self: end;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .game-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+  }
+
+  .game-card__price s {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .game-card__price b {
+    font-size: var(--text-lg);
+  }
+
+  .game-card__price .is-sale {
+    color: var(--hot);
+  }
+
+  /* вид «списком» в каталоге: обложка слева, текст справа */
+  .game-card--row {
+    grid-template-rows: none;
+    grid-template-columns: minmax(8rem, 14rem) 1fr;
+  }
+
+  .game-card--row .cover {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 9rem;
+  }
+
+  .game-card--row .cover__title {
+    display: none;
+  }
+
+  .game-card--row .game-card__wish {
+    top: var(--space-3);
+    left: var(--space-3);
+    right: auto;
+  }
+
+  .game-card--row .game-card__badge {
+    display: none;
+  }
+
+  .game-card--row:hover {
+    translate: 0 -2px;
+  }
+}
+
+/* ---------- поле ввода и переключатели (их же рисует React-каталог) ---------- */
+@layer components {
+  /* поле */
+    .field {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .field__label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-mono);
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .field__box {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      min-width: 0;
+      height: 52px;
+      padding-inline: var(--space-4);
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px var(--border);
+      color: var(--text-muted);
+      transition:
+        box-shadow var(--dur) var(--ease-out),
+        color var(--dur-fast);
+    }
+
+    .field__box:hover {
+      box-shadow: inset 0 0 0 1px var(--border-strong);
+    }
+
+    /* рамка светится, когда фокус внутри — у самого input обводку убираем */
+    .field__box:has(:focus-visible) {
+      color: var(--accent-2);
+      box-shadow:
+        inset 0 0 0 1px var(--accent-2),
+        0 0 16px oklch(0.83 0.1 205 / 0.25);
+    }
+
+    .field__input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      background: none;
+      color: var(--text);
+      caret-color: var(--accent-2);
+    }
+
+    .field__input::placeholder {
+      color: var(--text-muted);
+      opacity: 1;
+    }
+
+    .field__input:focus-visible {
+      outline: none;
+    }
+
+    /* у type=search свой крестик в Chrome — оставляем, но красим под тему */
+    .field__input::-webkit-search-cancel-button {
+      filter: invert(0.7);
+    }
+
+    .field__kbd {
+      padding: 2px var(--space-2);
+      border-radius: var(--radius-sm);
+      background: var(--surface-3);
+      color: var(--text-muted);
+      font-size: var(--text-2xs);
+    }
+
+    .field--error .field__box {
+      box-shadow: inset 0 0 0 1px var(--danger);
+    }
+
+    .field__error {
+      font-size: var(--text-sm);
+      color: var(--danger);
+    }
+  
+  /* тумблер и чекбокс */
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+      font-size: var(--text-base);
+    }
+
+    /* сам input невидим, но остаётся в потоке фокуса */
+    .toggle__input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+
+    .toggle__ui {
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition:
+        background-color var(--dur) var(--ease-out),
+        box-shadow var(--dur) var(--ease-out);
+    }
+
+    .toggle__input:focus-visible + .toggle__ui {
+      box-shadow: var(--focus-ring);
+    }
+
+    .toggle__input:disabled ~ * {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ---------- switch ---------- */
+    .toggle--switch .toggle__ui {
+      width: 48px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-3);
+    }
+
+    .toggle--switch .toggle__ui::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition:
+        translate var(--dur) var(--ease-out),
+        background-color var(--dur);
+    }
+
+    .toggle--switch .toggle__input:checked + .toggle__ui {
+      background: var(--accent);
+      box-shadow: 0 0 16px oklch(0.74 0.14 292 / 0.4);
+    }
+
+    .toggle--switch .toggle__input:checked + .toggle__ui::before {
+      translate: 20px 0;
+      background: var(--bg);
+    }
+
+    .toggle--switch .toggle__input:checked:focus-visible + .toggle__ui {
+      box-shadow:
+        0 0 16px oklch(0.74 0.14 292 / 0.4),
+        var(--focus-ring);
+    }
+
+    /* ---------- checkbox ---------- */
+    .toggle--checkbox .toggle__ui {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px oklch(0.74 0.14 292 / 0.4);
+      color: var(--bg);
+    }
+
+    .toggle--checkbox .toggle__ui svg {
+      opacity: 0;
+      scale: 0.5;
+      transition:
+        opacity var(--dur-fast),
+        scale var(--dur) var(--ease-out);
+    }
+
+    .toggle--checkbox .toggle__input:checked + .toggle__ui {
+      background: var(--accent);
+      box-shadow: none;
+    }
+
+    .toggle--checkbox .toggle__input:checked + .toggle__ui svg {
+      opacity: 1;
+      scale: 1;
+    }
+  }

@@ -18,7 +18,7 @@ import { games } from "@/data/games";
   <!-- горизонтальная лента: скролл-снап, стрелки, перетаскивание мышью, свайп на телефоне -->
   <ul class="week__track" role="list" data-carousel-track>
     {
-      games.map((g) => (
+      games.slice(0, 6).map((g) => (
         <li class="week__item">
           <GameCard game={g} />
         </li>

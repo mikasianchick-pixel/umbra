@@ -1,0 +1,1273 @@
+---
+import Base from "@/layouts/Base.astro";
+import Button from "@/components/Button.astro";
+import Badge from "@/components/Badge.astro";
+import Tag from "@/components/Tag.astro";
+import Rating from "@/components/Rating.astro";
+import Icon from "@/components/Icon.astro";
+import IconButton from "@/components/IconButton.astro";
+import Segmented from "@/components/Segmented.astro";
+import Dialog from "@/components/Dialog.astro";
+import GameCard from "@/components/GameCard.astro";
+import {
+  games,
+  formatPrice,
+  badgeLabel,
+  achievementsOf,
+  reviewsOf,
+  requirements,
+  similarGames,
+  type Game,
+} from "@/data/games";
+
+export function getStaticPaths() {
+  return games.map((game) => ({ params: { slug: game.slug }, props: { game } }));
+}
+
+interface Props {
+  game: Game;
+}
+
+const { game } = Astro.props;
+const achievements = achievementsOf(game);
+const reviews = reviewsOf(game);
+const unlocked = achievements.filter((a) => a.progress === 100).length;
+const similar = similarGames(game);
+const release = new Date(game.release).toLocaleDateString("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+// «скриншоты» — процедурные кадры в цветах игры и палитры
+const shots = [
+  { a: game.cover.a, b: game.cover.b, caption: game.landmark === "tower" ? "03:00 AM" : game.name },
+  { a: "oklch(0.43 0.07 215)", b: "var(--accent-2)", caption: "The long road" },
+  { a: "oklch(0.38 0.11 350)", b: "var(--hot)", caption: "Signal lost" },
+  { a: "oklch(0.4 0.13 270)", b: "var(--accent-hover)", caption: "First light" },
+];
+
+const info = [
+  { label: "Developer", value: game.studio },
+  { label: "Release", value: release },
+  { label: "Languages", value: "EN, DE, JP, ES" },
+  { label: "Modes", value: game.modes },
+  { label: "Controller", value: game.features.controller ? "Full support" : "Keyboard & mouse", ok: game.features.controller },
+];
+
+const sections = [
+  { id: "about", label: "Overview" },
+  { id: "achievements", label: "Achievements" },
+  { id: "reviews", label: "Reviews", note: game.reviewCount },
+  { id: "requirements", label: "Requirements" },
+];
+---
+
+<Base title={game.name} description={`${game.name} by ${game.studio}. ${game.tagline}`}>
+  <!-- ================= HERO с параллаксом ================= -->
+  <section
+    class="gh"
+    style={`--cover-a: ${game.cover.a}; --cover-b: ${game.cover.b}`}
+    aria-labelledby="game-title"
+    data-parallax
+  >
+    <!-- сюда «прилетает» обложка из карточки (View Transitions) -->
+    <div class="gh__scene" style={`view-transition-name: cover-${game.slug}`} aria-hidden="true">
+      <div class="layer layer--sky" data-speed="0.15"></div>
+      <div class="layer layer--moon" data-speed="0.35"><span class="moon"></span></div>
+      <svg class="layer layer--far" data-speed="0.5" viewBox="0 0 1440 300" preserveAspectRatio="none">
+        <path
+          d="M0 220 120 150 240 190 380 110 520 180 640 120 780 170 900 90 1040 160 1180 100 1320 170 1440 130V300H0z"
+        ></path>
+      </svg>
+      {
+        game.landmark === "tower" && (
+          <div class="layer layer--tower" data-speed="0.7">
+            <svg class="tower" viewBox="0 0 120 400">
+              <path d="M60 10 20 400M60 10l40 390M34 300h52M40 220h40M47 140h26M30 360 90 300M90 360 30 300M36 280 84 220M84 280 36 220" />
+            </svg>
+            <span class="beacon" />
+            <span class="wave" style="--i: 0" />
+            <span class="wave" style="--i: 1" />
+            <span class="wave" style="--i: 2" />
+          </div>
+        )
+      }
+      <svg class="layer layer--near" data-speed="0.85" viewBox="0 0 1440 260" preserveAspectRatio="none">
+        <path d="M0 200 160 120 300 170 460 90 600 160 760 110 900 180 1060 120 1220 190 1440 140V260H0z"></path>
+      </svg>
+      <div class="gh__fade"></div>
+    </div>
+
+    <div class="gh__inner container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol role="list">
+          <li><a href="/games">Store</a></li>
+          <li><a href={`/games?genre=${encodeURIComponent(game.tags[0] ?? "")}`}>{game.tags[0]}</a></li>
+          <li aria-current="page">{game.name}</li>
+        </ol>
+      </nav>
+
+      <div class="gh__main">
+        <ul class="gh__tags" role="list">
+          {game.badge && <li><Badge kind={game.badge}>{badgeLabel(game)}</Badge></li>}
+          {game.tags.map((t) => <li><Tag href={`/games?genre=${encodeURIComponent(t)}`}>{t}</Tag></li>)}
+        </ul>
+        <h1 class="gh__title" id="game-title">{game.coverTitle}</h1>
+        <p class="gh__by">
+          by <b>{game.studio}</b> · {game.tagline}
+        </p>
+      </div>
+
+      <!-- панель покупки -->
+      <aside class="buy" aria-label="Get the game">
+        {game.features.pass && <span class="buy__pass">Included in Umbra Pass</span>}
+        <div class="buy__price">
+          <p>
+            {game.oldPrice && <s class="buy__old"><span class="visually-hidden">Was</span> {formatPrice(game.oldPrice)}</s>}
+            <b>{formatPrice(game.price)}</b>
+          </p>
+          <Rating value={game.rating} count={game.reviewCount} />
+        </div>
+        <Button
+          variant="hot"
+          icon="play"
+          block
+          data-toast={`${game.name} is fictional — but thanks for wanting to play!`}
+        >
+          Play now
+        </Button>
+        <Button
+          variant="ghost"
+          icon="heart"
+          size="sm"
+          block
+          class="buy__wish"
+          aria-pressed="false"
+          data-wish={game.slug}
+          data-wish-name={game.name}
+        >
+          Wishlist
+        </Button>
+        <p class="buy__meta">
+          <span>Windows · Linux · Deck</span><span>{game.size}</span>
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= навигация по разделам ================= -->
+  <nav class="secnav" aria-label="On this page" data-secnav>
+    <ul role="list" class="container">
+      {
+        sections.map((s) => (
+          <li>
+            <a href={`#${s.id}`}>
+              {s.label}
+              {s.note && <span>{s.note}</span>}
+            </a>
+          </li>
+        ))
+      }
+      <li class="secnav__bar" aria-hidden="true"></li>
+    </ul>
+  </nav>
+
+  <div class="game container">
+    <div class="game__main">
+      <!-- ---------- описание ---------- -->
+      <section id="about" class="block" aria-labelledby="about-title" data-reveal>
+        <h2 id="about-title">About</h2>
+        {game.about.map((p) => <p class="about__text">{p}</p>)}
+      </section>
+
+      <!-- ---------- галерея ---------- -->
+      <section class="block" aria-labelledby="gallery-title" data-gallery>
+        <h2 id="gallery-title">Gallery</h2>
+        <div class="stage">
+          {
+            shots.map((s, i) => (
+              <div
+                class:list={["shot", { "is-active": i === 0 }]}
+                style={`--cover-a: ${s.a}; --cover-b: ${s.b}`}
+                data-shot={i}
+              >
+                <span class="shot__orb" />
+                <span class="shot__caption">{s.caption}</span>
+              </div>
+            ))
+          }
+          <button class="stage__play" type="button" data-dialog-open="lightbox" aria-label="Open screenshot in full screen">
+            <Icon name="play" size={28} filled />
+          </button>
+        </div>
+        <ul class="thumbs" role="list">
+          {
+            shots.map((s, i) => (
+              <li>
+                <button
+                  class="thumb"
+                  type="button"
+                  style={`--cover-a: ${s.a}; --cover-b: ${s.b}`}
+                  aria-label={`Screenshot ${i + 1}: ${s.caption}`}
+                  aria-pressed={i === 0 ? "true" : "false"}
+                  data-thumb={i}
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- ---------- достижения ---------- -->
+      <section id="achievements" class="block" aria-labelledby="ach-title" data-reveal>
+        <div class="block__head">
+          <h2 id="ach-title">Achievements</h2>
+          <p class="mono">{unlocked} / {achievements.length} unlocked</p>
+        </div>
+        <ul class="achs" role="list">
+          {
+            achievements.map((a, i) => (
+              <li class:list={["ach", { "is-done": a.progress === 100 }]} style={`--i: ${i}`}>
+                <span class="ach__badge">
+                  <Icon name="trophy" size={26} />
+                </span>
+                <div class="ach__text">
+                  <h3>{a.name}</h3>
+                  <p>{a.text}</p>
+                  {a.progress === 100 ? (
+                    <p class="ach__done">Unlocked</p>
+                  ) : (
+                    <div class="ach__progress">
+                      <span class="ach__track"><span style={`width: ${a.progress}%`} /></span>
+                      <span class="mono">{a.progress}%</span>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- ---------- отзывы ---------- -->
+      <section id="reviews" class="block" aria-labelledby="rev-title" data-reveal>
+        <h2 id="rev-title">Reviews</h2>
+        <ul class="reviews" role="list">
+          {
+            reviews.map((r, i) => (
+              <li class="review">
+                <span class="review__avatar" style={`--c: var(${["--accent", "--accent-2", "--hot"][i % 3]})`} />
+                <div>
+                  <p class="review__user">{r.user}</p>
+                  <p class="review__hours">{r.hours}h on record</p>
+                </div>
+                <p class="review__stars" aria-label={`${r.stars} out of 5 stars`}>
+                  {Array.from({ length: 5 }, (_, s) => (
+                    <Icon name="star" size={16} filled class={s < r.stars ? "is-on" : ""} />
+                  ))}
+                </p>
+                <p class="review__text">{r.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
+    <!-- ================= боковая колонка ================= -->
+    <div class="game__side">
+      <section id="requirements" class="card req" aria-labelledby="req-title">
+        <h2 id="req-title" class="card__title">Requirements</h2>
+        <Segmented
+          name="specs"
+          legend="Requirements level"
+          options={[
+            { value: "minimum", label: "Minimum" },
+            { value: "recommended", label: "Recommended" },
+          ]}
+        />
+        {
+          (["minimum", "recommended"] as const).map((level) => (
+            <dl class:list={["specs", `specs--${level}`]}>
+              {requirements[level].map((r) => (
+                <div>
+                  <dt>{r.label}</dt>
+                  <dd>{r.value}</dd>
+                </div>
+              ))}
+              <div>
+                <dt>Disk</dt>
+                <dd>{game.size} SSD</dd>
+              </div>
+            </dl>
+          ))
+        }
+      </section>
+
+      <section class="card" aria-label="Game info">
+        <dl class="specs specs--info">
+          {
+            info.map((r) => (
+              <div>
+                <dt>{r.label}</dt>
+                <dd class:list={{ "is-ok": r.ok }}>{r.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="promo" aria-labelledby="promo-title">
+        <h2 id="promo-title">
+          {game.features.pass ? "Play it with" : "Play more with"}<br />Umbra Pass
+        </h2>
+        <p>200+ games, one price. First month free.</p>
+        <Button href="/#pass" icon="bolt" size="sm">Get pass</Button>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= похожие игры ================= -->
+  <section class="more container" aria-labelledby="more-title">
+    <p class="eyebrow">More like this</p>
+    <h2 id="more-title">If you like {game.tags[0]}</h2>
+    <ul class="more__grid" role="list">
+      {
+        similar.map((g) => (
+          <li>
+            <GameCard game={g} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- лайтбокс галереи: ← → листают кадры -->
+  <Dialog id="lightbox" title={`${game.name} · screenshots`}>
+    <div class="lightbox" data-lightbox>
+      {
+        shots.map((s, i) => (
+          <div
+            class:list={["shot", "shot--big", { "is-active": i === 0 }]}
+            style={`--cover-a: ${s.a}; --cover-b: ${s.b}`}
+            data-big={i}
+          >
+            <span class="shot__orb" />
+            <span class="shot__caption">{s.caption}</span>
+          </div>
+        ))
+      }
+      <div class="lightbox__nav">
+        <IconButton icon="arrowL" label="Previous screenshot" size="sm" data-lb-prev />
+        <span class="mono" data-lb-count>1 / {shots.length}</span>
+        <IconButton icon="arrow" label="Next screenshot" size="sm" data-lb-next />
+      </div>
+    </div>
+  </Dialog>
+</Base>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { initTilt } from "@/scripts/tilt";
+  import { initMagnetic } from "@/scripts/magnetic";
+
+  gsap.registerPlugin(ScrollTrigger);
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  initTilt();
+  initMagnetic();
+
+  /* ---------- параллакс: каждый слой едет со своей скоростью ---------- */
+  const hero = document.querySelector("[data-parallax]");
+  if (hero && !calm) {
+    hero.querySelectorAll<HTMLElement>("[data-speed]").forEach((layer) => {
+      gsap.to(layer, {
+        yPercent: Number(layer.dataset.speed) * 40,
+        ease: "none",
+        scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true },
+      });
+    });
+  }
+
+  /* ---------- появление блоков ---------- */
+  if (!calm) {
+    gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
+      gsap.from(el, {
+        autoAlpha: 0,
+        y: 40,
+        duration: 0.9,
+        ease: "expo.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+      });
+    });
+    // достижения: значки «переворачиваются», полоски заполняются
+    gsap.from(".ach__badge", {
+      rotateY: 180,
+      duration: 0.9,
+      ease: "back.out(1.6)",
+      stagger: 0.12,
+      scrollTrigger: { trigger: ".achs", start: "top 85%", once: true },
+    });
+    gsap.from(".ach__track span", {
+      width: 0,
+      duration: 1.4,
+      ease: "power3.out",
+      scrollTrigger: { trigger: ".achs", start: "top 85%", once: true },
+    });
+  }
+
+  /* ---------- навигация по разделам: бегущая черта под активной ссылкой ---------- */
+  const secnav = document.querySelector<HTMLElement>("[data-secnav]");
+  if (secnav) {
+    const links = [...secnav.querySelectorAll<HTMLAnchorElement>("a")];
+    const bar = secnav.querySelector<HTMLElement>(".secnav__bar");
+    const moveBar = (link: HTMLAnchorElement) => {
+      links.forEach((l) => l.toggleAttribute("aria-current", l === link));
+      if (!bar) return;
+      bar.style.setProperty("--x", `${link.offsetLeft}px`);
+      bar.style.setProperty("--w", `${link.offsetWidth}px`);
+    };
+    // на широком экране блок требований стоит в боковой колонке рядом с описанием,
+    // поэтому по прокрутке следим только за основной колонкой, а «Requirements» — по клику
+    const twoColumns = matchMedia("(min-width: 64rem)").matches;
+    links.forEach((link) => {
+      link.addEventListener("click", () => moveBar(link));
+      const target = document.querySelector(link.hash);
+      if (!target || (twoColumns && !target.closest(".game__main"))) return;
+      ScrollTrigger.create({
+        trigger: target,
+        start: "top 50%",
+        end: "bottom 50%",
+        onToggle: (self) => self.isActive && moveBar(link),
+      });
+    });
+    if (links[0]) moveBar(links[0]);
+    addEventListener("resize", () => {
+      const active = links.find((l) => l.hasAttribute("aria-current"));
+      if (active) moveBar(active);
+    });
+  }
+
+  /* ---------- галерея и лайтбокс ---------- */
+  const gallery = document.querySelector("[data-gallery]");
+  const lightbox = document.querySelector("[data-lightbox]");
+  if (gallery && lightbox) {
+    const thumbs = [...gallery.querySelectorAll<HTMLButtonElement>("[data-thumb]")];
+    const smalls = [...gallery.querySelectorAll<HTMLElement>("[data-shot]")];
+    const bigs = [...lightbox.querySelectorAll<HTMLElement>("[data-big]")];
+    const count = lightbox.querySelector("[data-lb-count]");
+    let current = 0;
+
+    const show = (i: number) => {
+      current = (i + thumbs.length) % thumbs.length;
+      thumbs.forEach((t, j) => t.setAttribute("aria-pressed", String(j === current)));
+      smalls.forEach((s, j) => s.classList.toggle("is-active", j === current));
+      bigs.forEach((s, j) => s.classList.toggle("is-active", j === current));
+      if (count) count.textContent = `${current + 1} / ${thumbs.length}`;
+    };
+
+    thumbs.forEach((t, i) => t.addEventListener("click", () => show(i)));
+    lightbox.querySelector("[data-lb-prev]")?.addEventListener("click", () => show(current - 1));
+    lightbox.querySelector("[data-lb-next]")?.addEventListener("click", () => show(current + 1));
+    document.getElementById("lightbox")?.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") show(current + 1);
+      if (e.key === "ArrowLeft") show(current - 1);
+    });
+  }
+</script>
+
+<style>
+  /* ================= HERO ================= */
+  .gh {
+    position: relative;
+    isolation: isolate;
+    margin-top: calc((var(--header-h) + var(--header-top) * 2) * -1);
+    padding-top: calc(var(--header-h) + var(--header-top) * 2 + var(--space-6));
+    padding-bottom: var(--space-10);
+    overflow: hidden;
+  }
+
+  .gh__scene {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .layer {
+    position: absolute;
+    inset-inline: 0;
+    will-change: transform;
+  }
+
+  .layer--sky {
+    inset-block: -20% 0;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--cover-a) 70%, var(--bg)),
+      color-mix(in oklch, var(--cover-a) 25%, var(--bg)) 70%,
+      var(--bg)
+    );
+  }
+
+  .layer--moon {
+    inset: 0;
+  }
+
+  .moon {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    width: clamp(10rem, 20vw, 18rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: linear-gradient(135deg, color-mix(in oklch, var(--cover-b), white 60%), var(--cover-b));
+    box-shadow: 0 0 120px color-mix(in oklch, var(--cover-b) 60%, transparent);
+    translate: -20% 0;
+  }
+
+  .layer--far,
+  .layer--near {
+    bottom: 0;
+    width: 100%;
+  }
+
+  .layer--far {
+    height: 45%;
+    fill: color-mix(in oklch, var(--cover-a) 55%, var(--surface-2));
+    opacity: 0.85;
+  }
+
+  .layer--near {
+    height: 32%;
+    fill: var(--surface-1);
+  }
+
+  .layer--tower {
+    inset: 0;
+  }
+
+  .tower {
+    position: absolute;
+    left: calc(50% + clamp(2rem, 6vw, 6rem));
+    bottom: 18%;
+    width: clamp(4rem, 8vw, 7.5rem);
+    height: auto;
+    fill: none;
+    stroke: var(--bg);
+    stroke-width: 5;
+    stroke-linejoin: round;
+  }
+
+  .beacon,
+  .wave {
+    position: absolute;
+    left: calc(50% + clamp(2rem, 6vw, 6rem) + clamp(2rem, 4vw, 3.75rem));
+    bottom: calc(18% + clamp(4rem, 8vw, 7.5rem) * 3.33 - 6px);
+    width: 12px;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    border-radius: 50%;
+  }
+
+  .beacon {
+    background: var(--hot);
+    box-shadow:
+      0 0 20px var(--hot),
+      0 0 60px oklch(0.74 0.14 352 / 0.6);
+  }
+
+  .wave {
+    box-shadow: inset 0 0 0 1px oklch(0.74 0.14 352 / 0.6);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .beacon {
+      animation: blink 1.4s steps(1) infinite;
+    }
+
+    .wave {
+      animation: wave 3s var(--ease-out) infinite;
+      animation-delay: calc(var(--i) * 1s);
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes wave {
+    from {
+      scale: 1;
+      opacity: 1;
+    }
+    to {
+      scale: 28;
+      opacity: 0;
+    }
+  }
+
+  .gh__fade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 30%;
+    background: linear-gradient(transparent, var(--bg));
+  }
+
+  .gh__inner {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--accent-2);
+  }
+
+  .crumbs li + li::before {
+    content: "/";
+    margin-right: var(--space-2);
+    color: var(--text-muted);
+  }
+
+  .crumbs a:hover {
+    color: var(--text);
+  }
+
+  .crumbs [aria-current] {
+    color: var(--text-muted);
+  }
+
+  .gh__main {
+    display: grid;
+    gap: var(--space-5);
+    align-content: end;
+    padding-top: clamp(var(--space-24), 18vw, 14rem);
+  }
+
+  .gh__tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .gh__title {
+    font-size: clamp(3rem, 1.5rem + 7vw, 6.5rem);
+    line-height: 1.02;
+    white-space: pre-line;
+    text-shadow: 0 0 40px color-mix(in oklch, var(--cover-b) 50%, transparent);
+  }
+
+  .gh__by {
+    max-width: 40rem;
+    color: var(--text-muted);
+    font-size: var(--text-lg);
+  }
+
+  .gh__by b {
+    color: var(--text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- панель покупки ---------- */
+  .buy {
+    display: grid;
+    gap: var(--space-4);
+    align-self: end;
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    background: oklch(0.185 0.018 285 / 0.8);
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      0 20px 60px oklch(0 0 0 / 0.5);
+    backdrop-filter: blur(16px);
+  }
+
+  .buy__pass {
+    justify-self: start;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .buy__price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .buy__price p {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .buy__price b {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+  }
+
+  .buy__old {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  .buy :global(.buy__wish[aria-pressed="true"]) {
+    color: var(--hot);
+    box-shadow: inset 0 0 0 1px oklch(0.74 0.14 352 / 0.6);
+  }
+
+  .buy :global(.buy__wish[aria-pressed="true"] svg) {
+    fill: currentColor;
+  }
+
+  .buy__meta {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ================= навигация по разделам ================= */
+  .secnav {
+    position: sticky;
+    top: calc(var(--header-h) + var(--header-top) * 2);
+    z-index: 10;
+    margin-top: var(--space-6);
+    background: oklch(0.145 0.014 285 / 0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  .secnav ul {
+    position: relative;
+    display: flex;
+    gap: var(--space-8);
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+
+  .secnav a {
+    display: block;
+    padding-block: var(--space-4);
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color var(--dur-fast);
+  }
+
+  .secnav a:hover,
+  .secnav a[aria-current] {
+    color: var(--text);
+  }
+
+  .secnav a span {
+    margin-left: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .secnav__bar {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: var(--w, 0);
+    height: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    translate: var(--x, 0) 0;
+    transition:
+      translate var(--dur-slow) var(--ease-out),
+      width var(--dur-slow) var(--ease-out);
+  }
+
+  /* ================= содержимое ================= */
+  .game {
+    display: grid;
+    gap: var(--space-10);
+    padding-top: var(--space-12);
+  }
+
+  .game__main {
+    display: grid;
+    gap: var(--space-16);
+    min-width: 0;
+  }
+
+  .block {
+    display: grid;
+    gap: var(--space-5);
+    scroll-margin-top: calc(var(--header-h) + var(--header-top) * 2 + var(--space-16));
+  }
+
+  .block h2,
+  .card__title,
+  .promo h2 {
+    font-size: var(--text-xl);
+    letter-spacing: 0.08em;
+  }
+
+  .block__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+
+  .block__head p {
+    font-size: var(--text-sm);
+  }
+
+  .about__text {
+    max-width: 46rem;
+    color: var(--text-muted);
+    font-size: var(--text-lg);
+  }
+
+  /* ---------- галерея ---------- */
+  .stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+  }
+
+  .shot {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    background: linear-gradient(
+      150deg,
+      var(--cover-a),
+      color-mix(in oklch, var(--cover-b) 40%, var(--bg)) 60%,
+      var(--bg)
+    );
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+
+  .shot.is-active {
+    opacity: 1;
+  }
+
+  .shot::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 72%;
+    height: 1px;
+    background: oklch(0.94 0.008 285 / 0.25);
+  }
+
+  .shot__orb {
+    position: absolute;
+    top: 10%;
+    right: 12%;
+    width: 36cqi;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cover-b);
+    filter: blur(30px);
+    opacity: 0.85;
+  }
+
+  .shot__caption {
+    position: absolute;
+    left: 4cqi;
+    bottom: 4cqi;
+    font-family: var(--font-display);
+    font-size: 6cqi;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 0 24px color-mix(in oklch, var(--cover-b) 60%, transparent);
+  }
+
+  .stage__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: oklch(0.145 0.014 285 / 0.6);
+    box-shadow: inset 0 0 0 1px oklch(0.94 0.008 285 / 0.4);
+    backdrop-filter: blur(8px);
+    transition:
+      scale var(--dur) var(--ease-out),
+      background-color var(--dur-fast);
+  }
+
+  .stage__play:hover {
+    scale: 1.1;
+    background: oklch(0.145 0.014 285 / 0.8);
+  }
+
+  .stage__play:focus-visible {
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  .thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+  }
+
+  .thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(circle at 75% 35%, var(--cover-b), transparent 35%),
+      linear-gradient(150deg, var(--cover-a), var(--bg));
+    opacity: 0.6;
+    transition:
+      opacity var(--dur-fast),
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  .thumb:hover {
+    opacity: 1;
+  }
+
+  .thumb[aria-pressed="true"] {
+    opacity: 1;
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  .lightbox {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lightbox .shot--big {
+    position: relative;
+    display: none;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    opacity: 1;
+  }
+
+  .lightbox .shot--big.is-active {
+    display: block;
+  }
+
+  .lightbox__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  :global(#lightbox) {
+    width: min(100% - var(--space-8), 60rem);
+  }
+
+  /* ---------- достижения ---------- */
+  .achs {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .ach {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+    perspective: 400px;
+  }
+
+  .ach__badge {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+    color: var(--text-muted);
+  }
+
+  /* цвета открытых значков по очереди: фиолетовый, бирюзовый */
+  .ach.is-done .ach__badge {
+    --c: var(--accent);
+    background: var(--c);
+    box-shadow: 0 0 20px color-mix(in oklch, var(--c) 50%, transparent);
+    color: var(--bg);
+  }
+
+  .ach.is-done:nth-child(even) .ach__badge {
+    --c: var(--accent-2);
+  }
+
+  .ach__text {
+    display: grid;
+    gap: var(--space-1);
+    flex: 1;
+  }
+
+  .ach h3 {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .ach:not(.is-done) h3 {
+    color: var(--text-muted);
+  }
+
+  .ach p {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .ach .ach__done {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .ach.is-done:nth-child(even) .ach__done {
+    color: var(--accent-2);
+  }
+
+  .ach__progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-2xs);
+  }
+
+  .ach__track {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+
+  .ach__track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--gradient-accent);
+  }
+
+  /* ---------- отзывы ---------- */
+  .reviews {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .review {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .review__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, white, var(--c) 55%);
+  }
+
+  .review__user {
+    font-weight: 600;
+  }
+
+  .review__hours {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .review__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--surface-3);
+  }
+
+  .review__stars :global(.is-on) {
+    color: var(--accent-2);
+  }
+
+  .review__text {
+    grid-column: 1 / -1;
+    margin-top: var(--space-3);
+    color: var(--text-muted);
+  }
+
+  /* ================= боковая колонка ================= */
+  .game__side {
+    display: grid;
+    gap: var(--space-6);
+    align-content: start;
+  }
+
+  .card {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+    scroll-margin-top: calc(var(--header-h) + var(--header-top) * 2 + var(--space-16));
+  }
+
+  .req :global(.seg) {
+    width: 100%;
+    background: var(--bg);
+  }
+
+  .specs {
+    display: grid;
+  }
+
+  .specs div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .specs div:last-child {
+    border-bottom: 0;
+  }
+
+  .specs dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    align-self: center;
+  }
+
+  .specs dd {
+    font-size: var(--text-sm);
+  }
+
+  .specs dd.is-ok {
+    color: var(--success);
+  }
+
+  /* переключатель Minimum / Recommended — без JS, через :has() */
+  .specs--recommended,
+  .req:has(input[value="recommended"]:checked) .specs--minimum {
+    display: none;
+  }
+
+  .req:has(input[value="recommended"]:checked) .specs--recommended {
+    display: grid;
+  }
+
+  .promo {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(
+      120deg,
+      color-mix(in oklch, var(--accent) 22%, var(--surface-1)),
+      color-mix(in oklch, var(--accent-2) 18%, var(--surface-1))
+    );
+    box-shadow:
+      inset 0 0 0 1px oklch(0.74 0.14 292 / 0.4),
+      0 0 30px oklch(0.74 0.14 292 / 0.2);
+  }
+
+  .promo p {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  /* ================= похожие ================= */
+  .more {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--section-gap);
+  }
+
+  .more__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  @media (min-width: 48rem) {
+    .achs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .gh__inner {
+      grid-template-columns: 1fr 22rem;
+      align-items: end;
+      gap: var(--space-12);
+    }
+
+    .crumbs {
+      grid-column: 1 / -1;
+    }
+
+    .game {
+      grid-template-columns: 1fr 24rem;
+      gap: var(--space-12);
+      align-items: start;
+    }
+  }
+</style>

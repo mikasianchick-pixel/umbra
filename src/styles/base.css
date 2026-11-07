@@ -91,3 +91,16 @@
     }
   }
 }
+
+/* Родные переходы между страницами (без JS-роутера): обложка игры «перелетает» на её страницу.
+   Вне слоя: at-правило @view-transition внутри @layer браузеры могут проигнорировать. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-group(*) {
+  animation-duration: 0.5s;
+  animation-timing-function: var(--ease-out);
+}

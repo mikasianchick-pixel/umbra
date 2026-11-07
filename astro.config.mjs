@@ -4,7 +4,8 @@ import react from "@astrojs/react";
 
 export default defineConfig({
   integrations: [react()],
-  // плавные переходы между страницами включаются на этапе 7 (View Transitions через <ClientRouter />)
+  // переходы между страницами — родные View Transitions браузера (@view-transition в base.css), без JS-роутера;
+  // предзагрузка делает их мгновенными
   prefetch: { prefetchAll: true },
   // Three.js (~700 КБ) грузится отдельным файлом и только на главной — предупреждение о размере тут лишнее
   vite: { build: { chunkSizeWarningLimit: 800 } },

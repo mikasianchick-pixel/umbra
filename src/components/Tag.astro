@@ -1,5 +1,5 @@
 ---
-// Моно-тег жанра. С href — ссылка, с selected — выбранный фильтр.
+// Моно-тег жанра. С href — ссылка, с selected — выбранный фильтр. Стили — src/styles/ui.css.
 interface Props {
   href?: string;
   selected?: boolean;
@@ -17,53 +17,3 @@ const Tag = href ? "a" : "span";
 >
   <slot />
 </Tag>
-
-<style>
-  @layer components {
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-1);
-      padding: 0.4375rem 0.875rem; /* 7 / 14 — как в макете */
-      border-radius: var(--radius-pill);
-      background: var(--surface-1);
-      box-shadow: inset 0 0 0 1px var(--line);
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      line-height: 1.2;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .tag--sm {
-      padding: var(--space-1) 0.625rem;
-      background: var(--surface-2);
-      box-shadow: none;
-      font-size: var(--text-2xs);
-    }
-
-    a.tag {
-      transition:
-        color var(--dur-fast),
-        box-shadow var(--dur-fast);
-    }
-
-    a.tag:hover {
-      color: var(--text);
-      box-shadow: inset 0 0 0 1px var(--border-strong);
-    }
-
-    .tag--selected {
-      background: var(--surface-2);
-      color: var(--accent);
-      box-shadow: inset 0 0 0 1px var(--accent);
-    }
-
-    .tag--selected::after {
-      content: "✓";
-    }
-  }
-</style>

@@ -7,7 +7,9 @@ export function initTilt(root: ParentNode = document) {
     !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!canTilt) return;
 
-  root.querySelectorAll<HTMLElement>("[data-tilt]").forEach((el) => {
+  // :not([data-tilt-ready]) — можно вызывать повторно (React-каталог дорисовывает карточки)
+  root.querySelectorAll<HTMLElement>("[data-tilt]:not([data-tilt-ready])").forEach((el) => {
+    el.dataset.tiltReady = "";
     let frame = 0;
 
     el.addEventListener("pointermove", (e) => {

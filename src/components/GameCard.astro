@@ -1,6 +1,7 @@
 ---
+// Карточка игры. Стили — в src/styles/ui.css: ту же разметку рисует React-каталог (islands/GameCardView.tsx).
 import type { Game } from "@/data/games";
-import { formatPrice } from "@/data/games";
+import { formatPrice, badgeLabel } from "@/data/games";
 import GameCover from "./GameCover.astro";
 import Badge from "./Badge.astro";
 import Tag from "./Tag.astro";
@@ -11,23 +12,22 @@ interface Props {
   game: Game;
   /** уровень заголовка зависит от страницы */
   headingLevel?: 2 | 3;
+  /** false — если эта же игра уже есть на странице с «перелетающей» обложкой */
+  morph?: boolean;
 }
 
-const { game, headingLevel = 3 } = Astro.props;
+const { game, headingLevel = 3, morph = true } = Astro.props;
 const Heading = `h${headingLevel}` as const;
-const badgeText = { new: "New", sale: "", early: "Early access" } as const;
-const discount =
-  game.oldPrice && Math.round((1 - game.price / game.oldPrice) * 100);
 ---
 
 <article class="game-card" style={`--card-glow: ${game.cover.b}`} data-tilt>
-  <GameCover game={game} />
+  <GameCover game={game} morph={morph} />
   <span class="game-card__glare" aria-hidden="true"></span>
 
   {
     game.badge && (
       <Badge kind={game.badge} class="game-card__badge">
-        {game.badge === "sale" ? `-${discount}%` : badgeText[game.badge]}
+        {badgeLabel(game)}
       </Badge>
     )
   }
@@ -35,10 +35,12 @@ const discount =
   <IconButton
     class="game-card__wish"
     icon="heart"
-    label={`Add ${game.name} to wishlist`}
+    label={`${game.name}: add to wishlist`}
     toggle
     overlay
     size="sm"
+    data-wish={game.slug}
+    data-wish-name={game.name}
   />
 
   <div class="game-card__body">
@@ -71,170 +73,3 @@ const discount =
     </div>
   </div>
 </article>
-
-<style>
-  @layer components {
-    .game-card {
-      position: relative;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      height: 100%;
-      overflow: hidden;
-      border-radius: var(--radius-lg);
-      background: var(--surface-1);
-      box-shadow: inset 0 0 0 1px var(--border);
-      /* наклон за курсором: углы ставит scripts/tilt.ts */
-      transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-      transition:
-        translate var(--dur) var(--ease-out),
-        transform var(--dur-slow) var(--ease-out),
-        box-shadow var(--dur) var(--ease-out);
-    }
-
-    /* пока курсор на карточке — наклон следует мгновенно, без «резины» */
-    .game-card.is-tilting {
-      transition:
-        translate var(--dur) var(--ease-out),
-        transform 80ms linear,
-        box-shadow var(--dur) var(--ease-out);
-    }
-
-    /* блик под курсором */
-    .game-card__glare {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      opacity: 0;
-      background: radial-gradient(
-        circle at var(--gx, 50%) var(--gy, 50%),
-        oklch(1 0 0 / 0.18),
-        transparent 45%
-      );
-      mix-blend-mode: overlay;
-      transition: opacity var(--dur) var(--ease-out);
-    }
-
-    .game-card.is-tilting .game-card__glare {
-      opacity: 1;
-    }
-
-    /* рамка поверх обложки, чтобы свет рамки не прятался под картинкой */
-    .game-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      border-radius: inherit;
-      box-shadow: inset 0 0 0 1px var(--border);
-      pointer-events: none;
-      transition: box-shadow var(--dur) var(--ease-out);
-    }
-
-    .game-card:hover {
-      translate: 0 -8px;
-      box-shadow: 0 0 48px color-mix(in oklch, var(--card-glow) 35%, transparent);
-    }
-
-    .game-card:hover::after {
-      box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--card-glow) 50%, transparent);
-    }
-
-    .game-card:hover :global(.cover__orb) {
-      translate: -8% 6%;
-    }
-
-    /* фокус на ссылке подсвечивает всю карточку */
-    .game-card:has(.game-card__name a:focus-visible)::after {
-      box-shadow:
-        inset 0 0 0 3px var(--accent-2),
-        inset 0 0 0 5px var(--bg);
-    }
-
-    .game-card :global(.game-card__badge) {
-      position: absolute;
-      top: var(--space-4);
-      left: var(--space-4);
-      z-index: 1;
-    }
-
-    .game-card :global(.game-card__wish) {
-      position: absolute;
-      top: var(--space-4);
-      right: var(--space-4);
-      z-index: 3;
-    }
-
-    .game-card__body {
-      display: grid;
-      grid-template-rows: auto auto auto 1fr;
-      gap: var(--space-2);
-      padding: var(--space-5);
-    }
-
-    .game-card__studio {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      letter-spacing: var(--tracking-mono);
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .game-card__name {
-      font-family: var(--font-body);
-      font-size: var(--text-xl);
-      font-weight: 600;
-      letter-spacing: 0;
-      text-transform: none;
-    }
-
-    /* растянутая ссылка: кликается вся карточка */
-    .game-card__name a::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-    }
-
-    .game-card__name a:focus-visible {
-      outline: none;
-    }
-
-    .game-card__tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-      margin-top: var(--space-1);
-    }
-
-    .game-card__foot {
-      display: flex;
-      align-self: end;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: var(--space-3);
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--line);
-    }
-
-    .game-card__price {
-      display: flex;
-      align-items: baseline;
-      gap: var(--space-2);
-      font-family: var(--font-mono);
-    }
-
-    .game-card__price s {
-      font-size: var(--text-sm);
-      color: var(--text-muted);
-    }
-
-    .game-card__price b {
-      font-size: var(--text-lg);
-    }
-
-    .game-card__price .is-sale {
-      color: var(--hot);
-    }
-  }
-</style>

@@ -7,6 +7,7 @@ import "@/styles/tokens.css";
 import "@/styles/reset.css";
 import "@/styles/base.css";
 import "@/styles/utilities.css";
+import "@/styles/ui.css";
 
 interface Props {
   title: string;
@@ -68,6 +69,8 @@ const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
     <Toaster />
     <script>
       import "@/scripts/smooth-scroll";
+      import { initWishlistButtons } from "@/scripts/wishlist";
+      initWishlistButtons();
     </script>
   </body>
 </html>
