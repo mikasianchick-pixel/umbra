@@ -64,6 +64,8 @@ const ogImage = new URL(image, Astro.site);
         } catch {
           /* приватный режим — просто показываем загрузчик */
         }
+        // ?noloader — сразу к сайту (скриншоты для README, ссылки «без заставки»)
+        if (new URLSearchParams(location.search).has("noloader")) seen = true;
         if (!seen) root.classList.add("is-loading");
       }
     </script>
