@@ -6,6 +6,8 @@ export default defineConfig({
   integrations: [react()],
   // плавные переходы между страницами включаются на этапе 7 (View Transitions через <ClientRouter />)
   prefetch: { prefetchAll: true },
+  // Three.js (~700 КБ) грузится отдельным файлом и только на главной — предупреждение о размере тут лишнее
+  vite: { build: { chunkSizeWarningLimit: 800 } },
   // шрифты скачиваются при сборке и раздаются с нашего сайта — без запросов к Google у посетителя
   fonts: [
     {

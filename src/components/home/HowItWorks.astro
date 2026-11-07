@@ -1,0 +1,260 @@
+---
+import SectionHead from "@/components/SectionHead.astro";
+
+// цвета панели для каждого шага — свет «перетекает» вместе с прокруткой
+const steps = [
+  {
+    title: "Discover",
+    text: "Curated drops every Friday. No noise, only games worth your night.",
+    a: "oklch(0.42 0.15 285)",
+    b: "var(--accent)",
+  },
+  {
+    title: "Play",
+    text: "One click install. Cloud saves and controller set up for you.",
+    a: "oklch(0.43 0.07 215)",
+    b: "var(--accent-2)",
+  },
+  {
+    title: "Share",
+    text: "Clip, screenshot and invite friends straight from the overlay.",
+    a: "oklch(0.38 0.11 350)",
+    b: "var(--hot)",
+  },
+  {
+    title: "Level up",
+    text: "Earn badges, climb seasons, unlock Pass rewards.",
+    a: "oklch(0.4 0.13 270)",
+    b: "var(--accent-hover)",
+  },
+];
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<section class="how section container" id="how" aria-labelledby="how-title" data-steps>
+  <SectionHead id="how-title" num="03" label="How it works" title="From wishlist to world" />
+
+  <div class="how__grid">
+    <div class="how__visual" aria-hidden="true">
+      {
+        steps.map((s, i) => (
+          <div
+            class:list={["panel", { "is-active": i === 0 }]}
+            style={`--cover-a: ${s.a}; --cover-b: ${s.b}`}
+            data-panel={i}
+          >
+            <span class="panel__orb" />
+            <span class="panel__tag">
+              Step {pad(i + 1)} / {pad(steps.length)}
+            </span>
+            <span class="panel__title">{s.title}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <ol class="how__steps" role="list">
+      {
+        steps.map((s, i) => (
+          <li class:list={["step", { "is-active": i === 0 }]} data-step={i}>
+            <span class="step__num" aria-hidden="true">
+              {pad(i + 1)}
+            </span>
+            <div>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .how__grid {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  /* ---------- панель ---------- */
+  .how__visual {
+    position: relative;
+    aspect-ratio: 6 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      0 0 60px oklch(0.74 0.14 292 / 0.2);
+  }
+
+  .panel {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    background: linear-gradient(
+      150deg,
+      var(--cover-a),
+      color-mix(in oklch, var(--cover-b) 45%, var(--bg)) 60%,
+      var(--bg)
+    );
+    opacity: 0;
+    scale: 1.06;
+    transition:
+      opacity var(--dur-slow) var(--ease-out),
+      scale var(--dur-slow) var(--ease-out);
+  }
+
+  .panel.is-active {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .panel::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 72%;
+    height: 1px;
+    background: oklch(0.94 0.008 285 / 0.25);
+  }
+
+  .panel__orb {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 50cqi;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cover-b);
+    filter: blur(40px);
+    opacity: 0.8;
+    translate: 0 20%;
+    transition: translate 1.2s var(--ease-out);
+  }
+
+  .panel.is-active .panel__orb {
+    translate: 0 0;
+  }
+
+  .panel__tag {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    color: var(--accent-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .panel__title {
+    position: absolute;
+    left: 6cqi;
+    bottom: 6cqi;
+    font-family: var(--font-display);
+    font-size: 10cqi;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 24px color-mix(in oklch, var(--cover-b) 60%, transparent);
+  }
+
+  /* ---------- шаги ---------- */
+  .how__steps {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .step {
+    position: relative;
+    display: flex;
+    gap: var(--space-6);
+    padding-left: var(--space-6);
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  /* светящаяся полоса слева у активного шага */
+  .step::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    scale: 1 0;
+    transform-origin: top;
+    transition: scale var(--dur-slow) var(--ease-out);
+  }
+
+  .step.is-active::before {
+    scale: 1 1;
+  }
+
+  .step__num {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--line);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .step.is-active .step__num {
+    color: var(--accent);
+    text-shadow: 0 0 20px oklch(0.74 0.14 292 / 0.5);
+  }
+
+  .step h3 {
+    font-size: var(--text-xl);
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .step.is-active h3 {
+    color: var(--text);
+  }
+
+  .step p {
+    margin-top: var(--space-2);
+    max-width: 26rem;
+    color: var(--text-muted);
+  }
+
+  /* на широком экране панель прилипает, а шаги прокручиваются мимо неё */
+  @media (min-width: 64rem) {
+    .how__grid {
+      grid-template-columns: 1fr 1.1fr;
+      align-items: start;
+      gap: var(--space-16);
+    }
+
+    .how__visual {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: calc(50svh - 16rem);
+    }
+
+    .how__steps {
+      grid-column: 1;
+      grid-row: 1;
+      gap: 0;
+    }
+
+    .step {
+      min-height: 50svh;
+      align-items: center;
+    }
+
+    .step:first-child {
+      align-items: flex-start;
+      padding-top: var(--space-16);
+    }
+  }
+</style>

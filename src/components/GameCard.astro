@@ -20,8 +20,9 @@ const discount =
   game.oldPrice && Math.round((1 - game.price / game.oldPrice) * 100);
 ---
 
-<article class="game-card" style={`--card-glow: ${game.cover.b}`}>
+<article class="game-card" style={`--card-glow: ${game.cover.b}`} data-tilt>
   <GameCover game={game} />
+  <span class="game-card__glare" aria-hidden="true"></span>
 
   {
     game.badge && (
@@ -82,9 +83,40 @@ const discount =
       border-radius: var(--radius-lg);
       background: var(--surface-1);
       box-shadow: inset 0 0 0 1px var(--border);
+      /* наклон за курсором: углы ставит scripts/tilt.ts */
+      transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
       transition:
         translate var(--dur) var(--ease-out),
+        transform var(--dur-slow) var(--ease-out),
         box-shadow var(--dur) var(--ease-out);
+    }
+
+    /* пока курсор на карточке — наклон следует мгновенно, без «резины» */
+    .game-card.is-tilting {
+      transition:
+        translate var(--dur) var(--ease-out),
+        transform 80ms linear,
+        box-shadow var(--dur) var(--ease-out);
+    }
+
+    /* блик под курсором */
+    .game-card__glare {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(
+        circle at var(--gx, 50%) var(--gy, 50%),
+        oklch(1 0 0 / 0.18),
+        transparent 45%
+      );
+      mix-blend-mode: overlay;
+      transition: opacity var(--dur) var(--ease-out);
+    }
+
+    .game-card.is-tilting .game-card__glare {
+      opacity: 1;
     }
 
     /* рамка поверх обложки, чтобы свет рамки не прятался под картинкой */

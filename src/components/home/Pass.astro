@@ -1,0 +1,212 @@
+---
+import SectionHead from "@/components/SectionHead.astro";
+import Pricing from "@/islands/Pricing";
+import "@/styles/segmented.css";
+---
+
+<section class="pass section container" id="pass" aria-labelledby="pass-title">
+  <SectionHead id="pass-title" num="04" label="Umbra Pass" title="One pass. Every night." />
+  <div data-reveal>
+    <!-- островок оживает, только когда секция появляется на экране -->
+    <Pricing client:visible />
+  </div>
+</section>
+
+<!-- разметку рисует React, поэтому стили глобальные (классы с префиксом pricing/tier) -->
+<style is:global>
+  /* угол, который умеет плавно анимироваться (для бегущего света по рамке) */
+  @property --sweep {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @layer components {
+    .pricing {
+      display: grid;
+      gap: var(--space-8);
+    }
+
+    .pricing__toggle {
+      justify-self: center;
+      align-self: start;
+    }
+
+    .pricing__tiers {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: min(85%, 22rem);
+      gap: var(--space-4);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin-inline: calc(var(--gutter) * -1);
+      padding: var(--space-4) var(--gutter) var(--space-6);
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+    }
+
+    .pricing__hint {
+      margin-top: calc(var(--space-6) * -1);
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .tier {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      background: var(--surface-1);
+      box-shadow: inset 0 0 0 1px var(--border);
+      scroll-snap-align: start;
+    }
+
+    /* популярный тариф на телефоне первым */
+    .tier--popular {
+      order: -1;
+      background: var(--surface-2);
+      box-shadow: 0 0 60px oklch(0.74 0.14 292 / 0.3);
+    }
+
+    /* по рамке популярного тарифа медленно бежит свет */
+    .tier--popular::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 1.5px;
+      border-radius: inherit;
+      background: conic-gradient(
+        from var(--sweep),
+        oklch(0.74 0.14 292 / 0.5),
+        var(--accent-2) 10%,
+        oklch(0.74 0.14 292 / 0.5) 20%,
+        oklch(0.74 0.14 292 / 0.5)
+      );
+      /* оставляем видимой только рамку */
+      mask:
+        linear-gradient(black 0 0) content-box exclude,
+        linear-gradient(black 0 0);
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .tier--popular::before {
+        animation: sweep 5s linear infinite;
+      }
+    }
+
+    @keyframes sweep {
+      to {
+        --sweep: 360deg;
+      }
+    }
+
+    .tier__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .tier__name {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .tier--popular .tier__name {
+      color: var(--accent);
+    }
+
+    .tier__badge {
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .tier__price {
+      margin-top: var(--space-6);
+      font-family: var(--font-display);
+      font-size: var(--text-5xl);
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tier__per {
+      margin-top: var(--space-3);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .tier__features {
+      display: grid;
+      gap: var(--space-4);
+      margin-block: var(--space-6) var(--space-10);
+    }
+
+    .tier__features li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+    }
+
+    .tier__features svg {
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+
+    .tier--popular .tier__features svg {
+      color: var(--accent-2);
+    }
+
+    .tier__cta {
+      margin-top: auto;
+      align-self: flex-start;
+    }
+
+    @media (min-width: 64rem) {
+      .pricing {
+        gap: var(--space-12);
+      }
+
+      .pricing__toggle {
+        justify-self: end;
+      }
+
+      .pricing__tiers {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(3, 1fr);
+        align-items: center;
+        gap: var(--space-6);
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+      }
+
+      .pricing__hint {
+        display: none;
+      }
+
+      .tier--popular {
+        order: 0;
+        padding-block: var(--space-10);
+      }
+    }
+  }
+</style>

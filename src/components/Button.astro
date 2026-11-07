@@ -42,7 +42,8 @@ const filledIcon = icon === "play" || icon === "bolt";
   </span>
 </Tag>
 
-<style>
+<!-- глобально: эти же классы использует React-островок тарифов -->
+<style is:global>
   @layer components {
     .btn {
       --btn-bg: var(--surface-1);

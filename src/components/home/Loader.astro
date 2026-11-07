@@ -1,0 +1,79 @@
+---
+// Загрузчик 0 → 100%. Показывается один раз за сессию (класс is-loading ставит Base.astro).
+// Проценты считает src/scripts/home.ts по реальной загрузке шрифтов и страницы.
+---
+
+<div class="loader" aria-hidden="true" data-loader>
+  <div class="loader__box">
+    <p class="loader__pct"><span data-loader-pct>0</span>%</p>
+    <div class="loader__track"><span class="loader__bar" data-loader-bar></span></div>
+    <p class="loader__meta">
+      <span>Loading worlds</span><span>v0.2</span>
+    </p>
+  </div>
+</div>
+
+<style>
+  .loader {
+    display: none;
+  }
+
+  :global(html.is-loading) {
+    overflow: hidden;
+  }
+
+  :global(html.is-loading) .loader {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-toast) + 1);
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(30rem 20rem at 50% 50%, oklch(0.74 0.14 292 / 0.14), transparent 70%),
+      var(--bg);
+  }
+
+  .loader__box {
+    display: grid;
+    gap: var(--space-4);
+    width: min(100% - var(--space-12), 24rem);
+  }
+
+  .loader__pct {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 2rem + 8vw, 7rem);
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    text-shadow: var(--glow-text);
+  }
+
+  .loader__track {
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+
+  .loader__bar {
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
+    background: var(--gradient-accent);
+    box-shadow: 0 0 12px var(--accent-2);
+    transform-origin: left;
+    scale: 0 1;
+  }
+
+  .loader__meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+</style>

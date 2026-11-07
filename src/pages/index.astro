@@ -1,40 +1,34 @@
 ---
-// Временная главная до этапа 5: проверяем шапку, шрифты и токены.
 import Base from "@/layouts/Base.astro";
-import Button from "@/components/Button.astro";
+import Loader from "@/components/home/Loader.astro";
+import Hero from "@/components/home/Hero.astro";
+import Marquee from "@/components/home/Marquee.astro";
+import GamesWeek from "@/components/home/GamesWeek.astro";
+import Bento from "@/components/home/Bento.astro";
+import HowItWorks from "@/components/home/HowItWorks.astro";
+import Stats from "@/components/home/Stats.astro";
+import Pass from "@/components/home/Pass.astro";
+import Faq from "@/components/home/Faq.astro";
+import Cta from "@/components/home/Cta.astro";
 ---
 
-<Base title="Umbra">
-  <section class="soon container">
-    <p class="eyebrow">Stage 3 · foundation</p>
-    <h1 class="soon__title">
-      Play the <span class="glow-text">night</span>
-    </h1>
-    <p class="lead">
-      The home page is on its way. Meanwhile, the design system is live — every colour, font and
-      glow you will see here.
-    </p>
-    <div class="soon__actions">
-      <Button href="/system" icon="arrow">
-        Open design system
-      </Button>
-    </div>
-  </section>
+<Base
+  title="Umbra"
+  description="Umbra — a fictional neon launcher for indie games. Portfolio project: Three.js, GSAP, Astro and React."
+  intro
+>
+  <Loader />
+  <Hero />
+  <Marquee />
+  <GamesWeek />
+  <Bento />
+  <HowItWorks />
+  <Stats />
+  <Pass />
+  <Faq />
+  <Cta />
 </Base>
 
-<style>
-  .soon {
-    min-height: 60svh;
-    display: grid;
-    align-content: center;
-    gap: var(--space-6);
-  }
-
-  .soon__title {
-    font-size: var(--text-display);
-  }
-
-  .soon__title span {
-    color: var(--accent);
-  }
-</style>
+<script>
+  import "@/scripts/home";
+</script>

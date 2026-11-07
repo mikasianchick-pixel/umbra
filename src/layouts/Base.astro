@@ -11,11 +11,14 @@ import "@/styles/utilities.css";
 interface Props {
   title: string;
   description?: string;
+  /** главная: загрузчик 0→100% (раз за сессию) и вступительная анимация hero */
+  intro?: boolean;
 }
 
 const {
   title,
   description = "Umbra — a fictional neon game platform. A portfolio project showing design, 3D, animation and front-end skills.",
+  intro = false,
 } = Astro.props;
 const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
 ---
@@ -28,6 +31,21 @@ const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
     <style is:inline>
       @layer reset, base, components, utilities;
     </style>
+    <!-- классы ставятся до первой отрисовки, чтобы загрузчик и интро не «мигали» -->
+    <script is:inline define:vars={{ intro }}>
+      const root = document.documentElement;
+      root.classList.add("js");
+      if (intro) {
+        root.classList.add("intro-pending");
+        let seen = false;
+        try {
+          seen = sessionStorage.getItem("umbra-loaded") === "1";
+        } catch {
+          /* приватный режим — просто показываем загрузчик */
+        }
+        if (!seen) root.classList.add("is-loading");
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#090910" />
@@ -48,6 +66,9 @@ const fullTitle = title === "Umbra" ? title : `${title} · Umbra`;
     </main>
     <Footer />
     <Toaster />
+    <script>
+      import "@/scripts/smooth-scroll";
+    </script>
   </body>
 </html>
 

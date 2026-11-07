@@ -1,0 +1,70 @@
+---
+// Бегущая строка жанров: чистый CSS. Вторая копия нужна для бесшовного круга и скрыта от скринридера.
+const genres = ["Roguelike", "Synthwave", "Co-op", "Pixel art", "Stealth", "Open world", "Horror", "Racing"];
+---
+
+<div class="marquee">
+  <ul class="marquee__track" role="list" aria-label="Genres">
+    {genres.map((g) => <li>{g}</li>)}
+  </ul>
+  <ul class="marquee__track" role="list" aria-hidden="true">
+    {genres.map((g) => <li>{g}</li>)}
+  </ul>
+</div>
+
+<style>
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    padding-block: var(--space-5);
+    border-block: 1px solid var(--border);
+    background: oklch(0.185 0.018 285 / 0.7);
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--space-8);
+    padding-right: var(--space-8);
+  }
+
+  .marquee li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-muted);
+  }
+
+  /* ромбик-разделитель */
+  .marquee li::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    rotate: 45deg;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 32s linear infinite;
+    }
+
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      translate: -100% 0;
+    }
+  }
+</style>

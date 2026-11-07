@@ -1,0 +1,169 @@
+---
+import SectionHead from "@/components/SectionHead.astro";
+import GameCard from "@/components/GameCard.astro";
+import IconButton from "@/components/IconButton.astro";
+import { games } from "@/data/games";
+---
+
+<section class="week section" aria-labelledby="week-title" data-carousel>
+  <div class="container">
+    <SectionHead id="week-title" num="01" label="Store" title="Games of the week">
+      <div class="week__nav">
+        <IconButton icon="arrowL" label="Previous games" data-carousel-prev />
+        <IconButton icon="arrow" label="Next games" class="week__next" data-carousel-next />
+      </div>
+    </SectionHead>
+  </div>
+
+  <!-- горизонтальная лента: скролл-снап, стрелки, перетаскивание мышью, свайп на телефоне -->
+  <ul class="week__track" role="list" data-carousel-track>
+    {
+      games.map((g) => (
+        <li class="week__item">
+          <GameCard game={g} />
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="container">
+    <div class="week__progress" aria-hidden="true"><span data-carousel-bar></span></div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-carousel]").forEach((root) => {
+    const track = root.querySelector<HTMLElement>("[data-carousel-track]");
+    const prev = root.querySelector<HTMLButtonElement>("[data-carousel-prev]");
+    const next = root.querySelector<HTMLButtonElement>("[data-carousel-next]");
+    const bar = root.querySelector<HTMLElement>("[data-carousel-bar]");
+    if (!track || !prev || !next || !bar) return;
+
+    const step = () => (track.querySelector("li")?.getBoundingClientRect().width ?? 300) + 24;
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const p = max > 0 ? track.scrollLeft / max : 0;
+      bar.style.setProperty("--p", String(p));
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max - 2;
+    };
+
+    prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+    next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    track.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+
+    // перетаскивание мышью (на тач-экранах работает родной свайп)
+    let startX = 0;
+    let startScroll = 0;
+    let dragging = false;
+    let moved = false;
+
+    track.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+    });
+    window.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 5 && !moved) {
+        moved = true;
+        track.classList.add("is-dragging");
+      }
+      if (moved) track.scrollLeft = startScroll - dx;
+    });
+    window.addEventListener("pointerup", () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove("is-dragging");
+    });
+    // после перетаскивания клик не должен открывать игру
+    track.addEventListener(
+      "click",
+      (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = false;
+        }
+      },
+      true,
+    );
+  });
+</script>
+
+<style>
+  .week__nav {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .week__nav :global(.icon-btn:disabled) {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .week__nav :global(.week__next:not(:disabled)) {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 20px oklch(0.74 0.14 292 / 0.4);
+  }
+
+  .week__track {
+    display: flex;
+    gap: var(--space-6);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    /* ряд начинается по линии контейнера, а уходит за край экрана */
+    padding: var(--space-4) max(var(--gutter), (100% - var(--container)) / 2) var(--space-8);
+    scroll-padding-inline: max(var(--gutter), (100% - var(--container)) / 2);
+    scrollbar-width: none;
+    cursor: grab;
+  }
+
+  .week__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .week__track:global(.is-dragging) {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
+  }
+
+  .week__item {
+    flex: 0 0 min(82%, 22.5rem);
+    scroll-snap-align: start;
+  }
+
+  .week__progress {
+    width: min(100%, 12rem);
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+
+  .week__progress span {
+    display: block;
+    width: 30%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    translate: calc(var(--p, 0) * 233%) 0;
+    transition: translate var(--dur-fast) linear;
+  }
+
+  @media (max-width: 47.99rem) {
+    .week__nav {
+      display: none;
+    }
+  }
+</style>

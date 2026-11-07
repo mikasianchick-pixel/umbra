@@ -1,0 +1,129 @@
+---
+import SectionHead from "@/components/SectionHead.astro";
+import Icon from "@/components/Icon.astro";
+
+const faq = [
+  {
+    q: "Is Umbra a real store?",
+    a: "No — Umbra is a fictional platform made as a portfolio project to show design, 3D, animation and front-end skills. All games and prices are made up.",
+  },
+  {
+    q: "Can I play with a controller?",
+    a: "Yes. Xbox, PlayStation and most generic pads are detected automatically — no setup screens.",
+  },
+  {
+    q: "What happens to my saves if I cancel Pass?",
+    a: "They stay. Saves up to 1 GB are free forever, and nothing is deleted when Pass ends.",
+  },
+  {
+    q: "Does it work on low-end laptops?",
+    a: "Yes. Even this page switches its 3D to a lighter mode on weak devices and calms all motion if you prefer reduced motion.",
+  },
+];
+---
+
+<section class="faq section container" id="faq" aria-labelledby="faq-title">
+  <SectionHead id="faq-title" num="05" label="FAQ" title="Questions" />
+
+  <div class="faq__list" data-reveal>
+    {
+      faq.map((item, i) => (
+        // одинаковый name — открыт только один вопрос (родное поведение браузера)
+        <details class="qa" name="faq" open={i === 0}>
+          <summary>
+            {item.q}
+            <Icon name="plus" size={20} class="qa__icon" />
+          </summary>
+          <p>{item.a}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .faq__list {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .qa {
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition:
+      background-color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+
+  .qa[open] {
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  .qa summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    border-radius: inherit;
+    cursor: pointer;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    list-style: none;
+  }
+
+  .qa summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .qa summary:hover :global(.qa__icon) {
+    color: var(--text);
+  }
+
+  .qa :global(.qa__icon) {
+    color: var(--text-muted);
+    transition:
+      rotate var(--dur) var(--ease-out),
+      color var(--dur-fast);
+  }
+
+  .qa[open] :global(.qa__icon) {
+    rotate: 45deg;
+    color: var(--accent);
+  }
+
+  .qa p {
+    padding: 0 var(--space-6) var(--space-6);
+    max-width: 44rem;
+    color: var(--text-muted);
+  }
+
+  /* плавное раскрытие ответа (там, где браузер это умеет) */
+  @media (prefers-reduced-motion: no-preference) {
+    .qa {
+      interpolate-size: allow-keywords;
+    }
+
+    .qa::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size var(--dur) var(--ease-out),
+        content-visibility var(--dur) allow-discrete;
+    }
+
+    .qa[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .faq {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      align-items: start;
+      gap: var(--space-12);
+    }
+  }
+</style>

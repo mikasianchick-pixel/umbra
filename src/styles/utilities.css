@@ -36,6 +36,108 @@
     text-shadow: var(--glow-text);
   }
 
+  /*
+    Глитч: две копии текста (из data-text) сдвигаются и режутся полосами.
+    Короткая вспышка раз в цикл, а не постоянное мигание — чтобы не утомлять.
+  */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .glitch::before {
+    color: var(--accent-2);
+    text-shadow: none;
+  }
+
+  .glitch::after {
+    color: var(--hot);
+    text-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .glitch::before {
+      animation: glitch-a 6s steps(1) infinite;
+    }
+
+    .glitch::after {
+      animation: glitch-b 6s steps(1) infinite;
+    }
+
+    .glitch {
+      animation: glitch-shake 6s steps(1) infinite;
+    }
+  }
+
+  @keyframes glitch-a {
+    0%,
+    6%,
+    100% {
+      opacity: 0;
+    }
+    1% {
+      opacity: 0.85;
+      translate: -0.05em 0;
+      clip-path: inset(10% 0 55% 0);
+    }
+    2.5% {
+      opacity: 0.85;
+      translate: 0.04em 0;
+      clip-path: inset(60% 0 8% 0);
+    }
+    4% {
+      opacity: 0.85;
+      translate: -0.03em 0;
+      clip-path: inset(35% 0 40% 0);
+    }
+  }
+
+  @keyframes glitch-b {
+    0%,
+    6%,
+    100% {
+      opacity: 0;
+    }
+    1.5% {
+      opacity: 0.8;
+      translate: 0.05em 0;
+      clip-path: inset(50% 0 20% 0);
+    }
+    3% {
+      opacity: 0.8;
+      translate: -0.04em 0;
+      clip-path: inset(5% 0 70% 0);
+    }
+    4.5% {
+      opacity: 0.8;
+      translate: 0.03em 0;
+      clip-path: inset(75% 0 2% 0);
+    }
+  }
+
+  @keyframes glitch-shake {
+    0%,
+    6%,
+    100% {
+      translate: 0 0;
+    }
+    2% {
+      translate: 0.02em 0;
+    }
+    3.5% {
+      translate: -0.02em 0;
+    }
+  }
+
   .visually-hidden {
     position: absolute !important;
     width: 1px;

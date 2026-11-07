@@ -1,0 +1,400 @@
+---
+import SectionHead from "@/components/SectionHead.astro";
+import Icon from "@/components/Icon.astro";
+
+const devices = [
+  { label: "Desktop", color: "var(--accent)" },
+  { label: "Laptop", color: "var(--accent-2)" },
+  { label: "Deck", color: "var(--hot)" },
+];
+const friends = ["var(--accent)", "var(--accent-2)", "var(--hot)", "var(--accent-hover)", "var(--success)"];
+---
+
+<section class="bento section container" aria-labelledby="bento-title">
+  <SectionHead id="bento-title" num="02" label="Platform" title="Built for long nights" />
+
+  <ul class="bento__grid" role="list">
+    <li class="tile tile--cloud" data-reveal data-spotlight>
+      <span class="tile__icon"><Icon name="cloud" size={24} /></span>
+      <div class="devices" aria-hidden="true">
+        {
+          devices.map((d, i) => (
+            <span class="device" style={`--c: ${d.color}; --i: ${i}`}>
+              {d.label}
+            </span>
+          ))
+        }
+        <span class="devices__sync"><span class="dot"></span>Synced 2s ago</span>
+      </div>
+      <h3>Cloud saves</h3>
+      <p>Start on desktop, continue on the laptop. Your progress follows you, instantly.</p>
+    </li>
+
+    <li class="tile tile--ach" data-reveal data-spotlight>
+      <span class="tile__icon"><Icon name="trophy" size={24} /></span>
+      <p class="ach__num" data-count="74" data-suffix="%">74%</p>
+      <div class="ach__track" aria-hidden="true"><span data-fill="0.74"></span></div>
+      <h3>Achievements</h3>
+      <p>1 284 unlocked this week across the community.</p>
+    </li>
+
+    <li class="tile tile--friends" data-reveal data-spotlight>
+      <span class="tile__icon"><Icon name="users" size={24} /></span>
+      <span class="avatars" aria-hidden="true">
+        {friends.map((c, i) => <span style={`--c: ${c}; --i: ${i}`} />)}
+      </span>
+      <h3>Friends</h3>
+      <p>12 friends playing right now.</p>
+    </li>
+
+    <li class="tile tile--pad" data-reveal data-spotlight>
+      <span class="tile__icon"><Icon name="pad" size={24} /></span>
+      <span class="pad" aria-hidden="true"><Icon name="pad" size={72} /></span>
+      <h3>Any controller</h3>
+      <p>Xbox, PlayStation, generic — auto-detected.</p>
+    </li>
+
+    <li class="tile tile--fps" data-reveal data-spotlight>
+      <span class="tile__icon"><Icon name="gauge" size={24} /></span>
+      <span class="fps" aria-hidden="true">
+        <b>120</b>
+        <span class="fps__bars">{Array.from({ length: 12 }, (_, i) => <i style={`--i: ${i}`} />)}</span>
+      </span>
+      <h3>120 FPS</h3>
+      <p>Streaming engine tuned for buttery frames.</p>
+    </li>
+  </ul>
+</section>
+
+<script>
+  // прожектор: светлое пятно внутри плитки следует за курсором
+  document.querySelectorAll<HTMLElement>("[data-spotlight]").forEach((tile) => {
+    tile.addEventListener("pointermove", (e) => {
+      const r = tile.getBoundingClientRect();
+      tile.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      tile.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
+  });
+</script>
+
+<style>
+  .bento__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .tile {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-height: 14rem;
+    padding: var(--space-6);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: box-shadow var(--dur) var(--ease-out);
+  }
+
+  .tile:hover {
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  /* прожектор под курсором */
+  .tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      22rem circle at var(--mx, 70%) var(--my, 0%),
+      oklch(0.74 0.14 292 / 0.16),
+      transparent 60%
+    );
+    opacity: 0.6;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .tile:hover::before {
+    opacity: 1;
+  }
+
+  .tile h3 {
+    margin-top: auto;
+    font-size: var(--text-xl);
+  }
+
+  .tile p {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .tile__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+    color: var(--accent);
+  }
+
+  .tile--cloud,
+  .tile--ach,
+  .tile--pad {
+    grid-column: span 2;
+  }
+
+  .tile--cloud {
+    min-height: 22rem;
+  }
+
+  /* ---------- устройства ---------- */
+  .devices {
+    position: relative;
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    padding-block: var(--space-6) var(--space-10);
+  }
+
+  .device {
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklch, var(--c) 60%, transparent),
+      0 0 24px color-mix(in oklch, var(--c) 35%, transparent);
+    color: var(--c);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .device:nth-child(2) {
+    translate: 0 var(--space-6);
+  }
+
+  .devices__sync {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--success);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .device {
+      animation: float 4s var(--ease-in-out) infinite;
+      animation-delay: calc(var(--i) * -1.3s);
+    }
+
+    .dot {
+      animation: blink 1.6s var(--ease-in-out) infinite;
+    }
+  }
+
+  @keyframes float {
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  /* ---------- достижения ---------- */
+  .tile .ach__num {
+    margin-top: var(--space-6);
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ach__track {
+    height: 6px;
+    margin-block: var(--space-3) var(--space-6);
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+  }
+
+  .ach__track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--gradient-accent);
+    box-shadow: 0 0 10px oklch(0.83 0.1 205 / 0.6);
+    transform-origin: left;
+    transform: scaleX(0.74);
+  }
+
+  /* ---------- друзья ---------- */
+  .avatars {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    display: flex;
+  }
+
+  .avatars span {
+    width: 32px;
+    height: 32px;
+    margin-left: -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, white, var(--c) 55%);
+    box-shadow: 0 0 0 3px var(--surface-1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tile--friends:hover .avatars span {
+      animation: hop 0.6s var(--ease-out) both;
+      animation-delay: calc(var(--i) * 60ms);
+    }
+  }
+
+  @keyframes hop {
+    40% {
+      translate: 0 -8px;
+    }
+  }
+
+  /* ---------- геймпад ---------- */
+  .pad {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    color: var(--accent);
+    filter: drop-shadow(0 0 12px oklch(0.74 0.14 292 / 0.6));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tile--pad:hover .pad {
+      animation: rumble 0.4s linear 2;
+    }
+  }
+
+  @keyframes rumble {
+    25% {
+      translate: -2px 1px;
+      rotate: -3deg;
+    }
+    75% {
+      translate: 2px -1px;
+      rotate: 3deg;
+    }
+  }
+
+  /* ---------- FPS ---------- */
+  .fps {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    display: grid;
+    justify-items: end;
+    gap: var(--space-2);
+  }
+
+  .fps b {
+    font-family: var(--font-mono);
+    font-size: var(--text-4xl);
+    line-height: 1;
+    color: var(--accent-2);
+    text-shadow: 0 0 16px oklch(0.83 0.1 205 / 0.5);
+  }
+
+  .fps__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 24px;
+  }
+
+  .fps__bars i {
+    width: 4px;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent-2);
+    opacity: 0.7;
+    transform-origin: bottom;
+    scale: 1 calc(0.4 + mod(var(--i) * 7, 10) / 16);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fps__bars i {
+      animation: eq 1.2s var(--ease-in-out) infinite alternate;
+      animation-delay: calc(var(--i) * -0.17s);
+    }
+  }
+
+  @keyframes eq {
+    from {
+      scale: 1 0.3;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .bento__grid {
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--space-6);
+    }
+
+    .tile--cloud {
+      grid-column: span 8;
+      min-height: 25rem;
+    }
+
+    .tile--ach {
+      grid-column: span 4;
+    }
+
+    .tile--friends,
+    .tile--pad,
+    .tile--fps {
+      grid-column: span 4;
+      min-height: 16rem;
+    }
+
+    .devices {
+      position: absolute;
+      top: var(--space-10);
+      right: var(--space-10);
+      padding: 0 0 var(--space-12);
+    }
+  }
+</style>
