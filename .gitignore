@@ -1,0 +1,16 @@
+# сборка и зависимости
+dist/
+.astro/
+node_modules/
+
+# логи
+npm-debug.log*
+
+# окружение
+.env
+.env.*
+!.env.example
+
+# системное
+.DS_Store
+Thumbs.db
